@@ -268,7 +268,6 @@ export const ZOOM_STEP = 0.1;
 
 // Legacy zoom levels for backward compatibility or snap points
 export const ZOOM_LEVELS = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 20];
-export const ZOOM_REPROCESS_THRESHOLDS = [0.25, 0.5, 1, 2, 4]; // Thresholds that trigger high-quality reprocessing
 
 // Image scale configuration (for preview and export)
 export const IMAGE_SCALE_MIN = 0.1; // 10%

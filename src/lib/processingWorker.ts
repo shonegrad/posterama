@@ -64,11 +64,11 @@ self.onmessage = (e: MessageEvent<ProcessingMessage>) => {
           processedData = riemersmaDither(imageData, layers, previewScaleRatio);
           break;
         case 'false-floyd-steinberg':
-          // @ts-ignore
+
           processedData = falseFloydSteinbergDither(imageData, layers, previewScaleRatio);
           break;
         case 'sierra-lite':
-          // @ts-ignore
+
           processedData = sierraLiteDither(imageData, layers, previewScaleRatio);
           break;
         default:
@@ -81,6 +81,7 @@ self.onmessage = (e: MessageEvent<ProcessingMessage>) => {
         imageData: processedData
       };
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       self.postMessage(response, [processedData.data.buffer] as any);
     } catch (error) {
       const response: ProcessingResponse = {

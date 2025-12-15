@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { toast } from 'sonner';
-import { LayerConfig, ThresholdAlgorithm, ColorSwatch, DEFAULT_LAYERS, ZOOM_REPROCESS_THRESHOLDS, COLOR_PRESETS, IMAGE_SCALE_DEFAULT } from '../lib/constants';
-import { createLayersWithExtractedColors, resizeImageForPreview, extractImageColors, createProcessingImage } from '../lib/imageUtils';
+import { LayerConfig, ThresholdAlgorithm, ColorSwatch, DEFAULT_LAYERS, COLOR_PRESETS, IMAGE_SCALE_DEFAULT } from '../lib/constants';
+import { createLayersWithExtractedColors, resizeImageForPreview, extractImageColors } from '../lib/imageUtils';
 import { ALGORITHM_INFO } from '../lib/constants';
 import {
   layerBasedProcessing,
@@ -78,14 +78,7 @@ export function useImageProcessor() {
     console.log('Status:', status);
   }, []);
 
-  // Memoized function to determine the appropriate zoom threshold
-  const getZoomThreshold = useMemo(() => {
-    return (zoom: number): number => {
-      return ZOOM_REPROCESS_THRESHOLDS.reduce((prev, curr) =>
-        Math.abs(curr - zoom) < Math.abs(prev - zoom) ? curr : prev
-      );
-    };
-  }, []);
+  // Clear image function - only clears image data, preserves settings
 
   // Clear image function - only clears image data, preserves settings
   const clearImage = useCallback(() => {
@@ -644,7 +637,7 @@ export function useImageProcessor() {
         const { format, quality, scale, filename } = options;
 
         // Apply export scale
-        let resScale = 1.0;
+        const resScale = 1.0;
         const finalScale = scale * resScale;
 
         // Calculate dimensions
@@ -811,7 +804,6 @@ export function useImageProcessor() {
 
     // Functions
     updateStatus,
-    getZoomThreshold,
     processImageFile,
     processImageOnCanvas,
     clearImage,

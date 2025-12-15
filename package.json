@@ -1,6 +1,28 @@
 {
-      "name": "Posterama",
-      "version": "0.1.0",
+      "name": "posterama",
+      "version": "0.2.0",
+      "description": "A browser-based image processing tool for creating poster-style art using dithering and patterns.",
+      "author": "Nebojsa Despotovic",
+      "type": "module",
+      "license": "MIT",
+      "repository": {
+            "type": "git",
+            "url": "git+https://github.com/shonegrad/posterama.git"
+      },
+      "bugs": {
+            "url": "https://github.com/shonegrad/posterama/issues"
+      },
+      "homepage": "https://shonegrad.github.io/posterama/",
+      "keywords": [
+            "react",
+            "vite",
+            "typescript",
+            "image-processing",
+            "dithering",
+            "patterns",
+            "halftone",
+            "poster-art"
+      ],
       "private": true,
       "dependencies": {
             "@radix-ui/react-accordion": "^1.2.3",
@@ -47,14 +69,32 @@
             "vaul": "^1.1.2"
       },
       "devDependencies": {
-            "@types/node": "^20.10.0",
+            "@eslint/js": "^9.39.2",
+            "@testing-library/dom": "^10.4.1",
+            "@testing-library/react": "^16.3.0",
+            "@types/node": "^20.19.27",
             "@types/react": "^19.2.7",
             "@types/react-dom": "^19.2.3",
             "@vitejs/plugin-react-swc": "^3.10.2",
-            "vite": "6.3.5"
+            "eslint": "^9.39.2",
+            "gh-pages": "^6.2.0",
+            "globals": "^16.5.0",
+            "jsdom": "^27.3.0",
+            "prettier": "^3.7.4",
+            "typescript-eslint": "^8.49.0",
+            "vite": "6.3.5",
+            "vitest": "^4.0.15"
       },
       "scripts": {
             "dev": "vite",
-            "build": "vite build"
+            "build": "vite build",
+            "predeploy": "npm run build",
+            "deploy": "gh-pages -d build",
+            "lint": "eslint .",
+            "format": "prettier --write .",
+            "format:check": "prettier --check .",
+            "typecheck": "tsc --noEmit",
+            "test": "vitest run",
+            "test:watch": "vitest"
       }
 }

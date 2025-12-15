@@ -53,8 +53,12 @@ export const generateHalftonePattern = (
   gray: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   previewScaleRatio: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
@@ -80,13 +84,8 @@ export const generateHalftonePattern = (
   const dotRadiusSq = maxRadiusSq * ((255 - gray) / 255) ** 2;
 
   const useForeground = distanceSq <= dotRadiusSq;
-  const hex = useForeground ? fgColor.substring(1) : bgColor.substring(1);
 
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return useForeground ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };
 
 export const generateScreentonePattern = (
@@ -95,8 +94,12 @@ export const generateScreentonePattern = (
   gray: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   previewScaleRatio: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
@@ -117,13 +120,8 @@ export const generateScreentonePattern = (
   const dist = Math.abs(normalizedPos - center);
 
   const useForeground = dist < (lineWidth / 2);
-  const hex = useForeground ? fgColor.substring(1) : bgColor.substring(1);
 
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return useForeground ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };
 
 export const generateNoisePattern = (
@@ -132,8 +130,12 @@ export const generateNoisePattern = (
   gray: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
   const seed = x * 73 + y * 37 + gray;
@@ -143,13 +145,8 @@ export const generateNoisePattern = (
 
   const threshold = 1 - (gray / 255) * 0.8 * densityFactor;
   const useForeground = random > threshold;
-  const hex = useForeground ? fgColor.substring(1) : bgColor.substring(1);
 
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return useForeground ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };
 
 export const generateCrosshatchPattern = (
@@ -158,8 +155,12 @@ export const generateCrosshatchPattern = (
   gray: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   previewScaleRatio: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
@@ -188,13 +189,7 @@ export const generateCrosshatchPattern = (
     else useForeground = horizontalLine;
   }
 
-  const hex = useForeground ? fgColor.substring(1) : bgColor.substring(1);
-
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return useForeground ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };
 
 export const generateStipplingPattern = (
@@ -203,8 +198,12 @@ export const generateStipplingPattern = (
   gray: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
   const seed = x * 127 + y * 83;
@@ -214,13 +213,7 @@ export const generateStipplingPattern = (
   const density = (1 - gray / 255) * 0.6 * densityFactor;
 
   const useForeground = random < density;
-  const hex = useForeground ? fgColor.substring(1) : bgColor.substring(1);
-
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return useForeground ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };
 
 export const generateNewspaperPattern = (
@@ -229,8 +222,12 @@ export const generateNewspaperPattern = (
   gray: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   previewScaleRatio: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
@@ -256,13 +253,7 @@ export const generateNewspaperPattern = (
   const dotRadius = maxRadius * (1 - gray / 255) * (0.8 + random * 0.4);
 
   const useForeground = distance <= dotRadius;
-  const hex = useForeground ? fgColor.substring(1) : bgColor.substring(1);
-
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return useForeground ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };
 
 export const generateDotsPattern = (
@@ -270,8 +261,12 @@ export const generateDotsPattern = (
   y: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   previewScaleRatio: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
@@ -293,13 +288,7 @@ export const generateDotsPattern = (
   const radius = scaledSize / 2;
 
   const useForeground = distance <= radius;
-  const hex = useForeground ? fgColor.substring(1) : bgColor.substring(1);
-
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return useForeground ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };
 
 export const generateLinesPattern = (
@@ -307,8 +296,12 @@ export const generateLinesPattern = (
   y: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   previewScaleRatio: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
@@ -322,29 +315,10 @@ export const generateLinesPattern = (
 
   // Use safeMod to handle negative coordinates (rotation) correctly
   const horizontalLine = safeMod(rotatedY, period) < lineWidth;
-  // Previously we only did horizontal for simple lines, but let's stick to simple horizontal lines
-  // If user wants vertical, they can rotate 90.
-  // But original code had implicit grid?
-  // Let's stick to Horizontal Lines only as user said "lines".
-  // Note: if I removed vertical check, it becomes just horizontal lines.
-  // If I keep both, it's a grid.
-  // "Lines" pattern in UI usually means lines.
-
-  // My previous Step 515 thought process: "Let's stick to original shape: Grid of lines."
-  // I will check 515.
-  // "const useForeground = horizontalLine || verticalLine;"
-  // I'll stick to that to avoid changing visual appearance too much, just fixing bugs.
-
   const verticalLine = safeMod(rotatedX, period) < lineWidth;
 
   const useForeground = horizontalLine || verticalLine;
-  const hex = useForeground ? fgColor.substring(1) : bgColor.substring(1);
-
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return useForeground ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };
 
 export const generateWavesPattern = (
@@ -352,8 +326,12 @@ export const generateWavesPattern = (
   y: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   previewScaleRatio: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
@@ -372,13 +350,7 @@ export const generateWavesPattern = (
 
   const useForeground = Math.abs(threshold - wave) < thickness / 2;
 
-  const hex = useForeground ? fgColor.substring(1) : bgColor.substring(1);
-
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return useForeground ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };
 
 export const generateHexagonPattern = (
@@ -386,8 +358,12 @@ export const generateHexagonPattern = (
   y: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   previewScaleRatio: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
@@ -406,9 +382,6 @@ export const generateHexagonPattern = (
   // Row needs proper handling for negative?
   // Math.floor handles negative correctly (-1.5 -> -2). 
   // Mod logic inside calculation might be tricky.
-  // (col % 2) -> if col is negative?
-  // -1 % 2 = -1.
-  // We need SAFE MOD for column parity!
   const colPhase = safeMod(col, 2);
 
   const row = Math.floor((rotatedY - colPhase * hexHeight * 0.5) / hexHeight);
@@ -421,13 +394,7 @@ export const generateHexagonPattern = (
   const distance = Math.sqrt((localX - centerX) ** 2 + (localY - centerY) ** 2);
 
   const useForeground = distance <= radius;
-  const hex = useForeground ? fgColor.substring(1) : bgColor.substring(1);
-
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return useForeground ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };
 
 export const generateBrickPattern = (
@@ -435,8 +402,12 @@ export const generateBrickPattern = (
   y: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   previewScaleRatio: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
@@ -462,13 +433,7 @@ export const generateBrickPattern = (
   const isMortar = localX < mortarWidth || localY < mortarWidth;
   // Since modulo is safe 0..period, this logic is correct.
 
-  const hex = !isMortar ? fgColor.substring(1) : bgColor.substring(1);
-
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return !isMortar ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };
 
 export const generateFabricPattern = (
@@ -476,8 +441,12 @@ export const generateFabricPattern = (
   y: number,
   patternSize: number,
   patternRotation: number,
-  fgColor: string,
-  bgColor: string,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   previewScaleRatio: number,
   patternSpacing: number = 0
 ): [number, number, number] => {
@@ -509,11 +478,5 @@ export const generateFabricPattern = (
     }
   }
 
-  const hex = useForeground ? fgColor.substring(1) : bgColor.substring(1);
-
-  return [
-    parseInt(hex.substring(0, 2), 16),
-    parseInt(hex.substring(2, 4), 16),
-    parseInt(hex.substring(4, 6), 16)
-  ];
+  return useForeground ? [fgR, fgG, fgB] : [bgR, bgG, bgB];
 };

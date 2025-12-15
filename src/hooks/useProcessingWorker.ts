@@ -1,7 +1,7 @@
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { LayerConfig } from '../lib/constants';
 // Import the worker using Vite's query suffix
-// @ts-ignore
+// @ts-expect-error - Worker import is handled by Vite
 import ImageWorker from '../lib/processingWorker.ts?worker';
 
 type ProcessingCallback = (imageData: ImageData) => void;

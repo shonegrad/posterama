@@ -14,14 +14,14 @@ class CanvasPool {
 
   acquire(width: number, height: number): HTMLCanvasElement {
     let canvas = this.pool.pop();
-    
+
     if (!canvas) {
       canvas = document.createElement('canvas');
     }
-    
+
     canvas.width = width;
     canvas.height = height;
-    
+
     return canvas;
   }
 
@@ -78,31 +78,31 @@ export async function extractImageData(
 ): Promise<ImageData> {
   const width = targetWidth || image.width;
   const height = targetHeight || image.height;
-  
+
   // Use ImageBitmap for efficient decoding
   const bitmap = await createOptimizedBitmap(image, width, height);
-  
+
   // Get a canvas from the pool
   const canvas = canvasPool.acquire(bitmap.width, bitmap.height);
-  const ctx = canvas.getContext('2d', { 
+  const ctx = canvas.getContext('2d', {
     willReadFrequently: true,
-    alpha: false 
+    alpha: false
   });
-  
+
   if (!ctx) {
     throw new Error('Failed to get canvas context');
   }
-  
+
   // Draw bitmap to canvas
   ctx.drawImage(bitmap, 0, 0);
-  
+
   // Extract image data
   const imageData = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
-  
+
   // Clean up
   bitmap.close();
   canvasPool.release(canvas);
-  
+
   return imageData;
 }
 
@@ -115,21 +115,21 @@ export function renderToCanvas(
   callback?: () => void
 ): void {
   requestAnimationFrame(() => {
-    const ctx = canvas.getContext('2d', { 
+    const ctx = canvas.getContext('2d', {
       alpha: false,
       desynchronized: true // Hint for better performance
     });
-    
+
     if (!ctx) return;
-    
+
     // Ensure canvas size matches
     if (canvas.width !== imageData.width || canvas.height !== imageData.height) {
       canvas.width = imageData.width;
       canvas.height = imageData.height;
     }
-    
+
     ctx.putImageData(imageData, 0, 0);
-    
+
     if (callback) {
       callback();
     }
@@ -147,37 +147,37 @@ export async function scaleImageData(
   // Create temporary canvas for scaling
   const tempCanvas = canvasPool.acquire(imageData.width, imageData.height);
   const tempCtx = tempCanvas.getContext('2d');
-  
+
   if (!tempCtx) {
     throw new Error('Failed to get temp canvas context');
   }
-  
+
   tempCtx.putImageData(imageData, 0, 0);
-  
+
   // Create bitmap from canvas
   const bitmap = await createImageBitmap(tempCanvas, {
     resizeWidth: targetWidth,
     resizeHeight: targetHeight,
     resizeQuality: 'pixelated'
   });
-  
+
   // Create target canvas
   const targetCanvas = canvasPool.acquire(targetWidth, targetHeight);
   const targetCtx = targetCanvas.getContext('2d');
-  
+
   if (!targetCtx) {
     bitmap.close();
     throw new Error('Failed to get target canvas context');
   }
-  
+
   targetCtx.drawImage(bitmap, 0, 0);
   const scaledData = targetCtx.getImageData(0, 0, targetWidth, targetHeight);
-  
+
   // Cleanup
   bitmap.close();
   canvasPool.release(tempCanvas);
   canvasPool.release(targetCanvas);
-  
+
   return scaledData;
 }
 
@@ -203,7 +203,7 @@ export class DebouncedProcessor {
 
   schedule(callback: () => void, delay: number = 0): void {
     this.cancel();
-    
+
     if (delay === 0) {
       // Use RAF for immediate updates
       this.rafId = requestAnimationFrame(callback);
@@ -218,7 +218,7 @@ export class DebouncedProcessor {
       clearTimeout(this.timeoutId);
       this.timeoutId = null;
     }
-    
+
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
@@ -233,8 +233,8 @@ export class DebouncedProcessor {
 export function calculateZoomTransform(
   zoomLevel: number,
   panOffset: { x: number; y: number },
-  containerWidth: number,
-  containerHeight: number
+  _containerWidth: number,
+  _containerHeight: number,
 ): {
   scale: number;
   translateX: number;
@@ -277,14 +277,14 @@ export class PerformanceMonitor {
       console.warn(`No start mark found for: ${label}`);
       return 0;
     }
-    
+
     const duration = performance.now() - start;
     this.marks.delete(label);
-    
+
     if (duration > 16.67) { // More than one frame (60fps)
       console.warn(`Slow operation: ${label} took ${duration.toFixed(2)}ms`);
     }
-    
+
     return duration;
   }
 

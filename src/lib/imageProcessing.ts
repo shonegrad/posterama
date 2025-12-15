@@ -3,11 +3,26 @@ import { applyBlendMode } from './blendModes';
 import * as PatternGenerators from './patternGeneration';
 
 // Apply layer with pattern logic
+// Helper to parse hex to RGB
+const hexToRgb = (hex: string): [number, number, number] => {
+  const r = parseInt(hex.substring(1, 3), 16);
+  const g = parseInt(hex.substring(3, 5), 16);
+  const b = parseInt(hex.substring(5, 7), 16);
+  return [r, g, b];
+};
+
+// Apply layer with pattern logic
 export const applyLayerWithPattern = (
   x: number,
   y: number,
   gray: number,
   layer: LayerConfig,
+  fgR: number,
+  fgG: number,
+  fgB: number,
+  bgR: number,
+  bgG: number,
+  bgB: number,
   baseR: number,
   baseG: number,
   baseB: number,
@@ -17,57 +32,49 @@ export const applyLayerWithPattern = (
 
   // Check if pattern mode is enabled
   if (layer.usePattern && layer.pattern !== 'none') {
-    // Use the layer color as the pattern foreground color
-    const fgColor = layer.color;
-
     switch (layer.pattern) {
       case 'halftone':
-        [patternR, patternG, patternB] = PatternGenerators.generateHalftonePattern(x, y, gray, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, previewScaleRatio, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateHalftonePattern(x, y, gray, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, previewScaleRatio, layer.patternSpacing || 0);
         break;
       case 'screentone':
-        [patternR, patternG, patternB] = PatternGenerators.generateScreentonePattern(x, y, gray, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, previewScaleRatio, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateScreentonePattern(x, y, gray, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, previewScaleRatio, layer.patternSpacing || 0);
         break;
       case 'noise':
-        [patternR, patternG, patternB] = PatternGenerators.generateNoisePattern(x, y, gray, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateNoisePattern(x, y, gray, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, layer.patternSpacing || 0);
         break;
       case 'crosshatch':
-        [patternR, patternG, patternB] = PatternGenerators.generateCrosshatchPattern(x, y, gray, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, previewScaleRatio, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateCrosshatchPattern(x, y, gray, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, previewScaleRatio, layer.patternSpacing || 0);
         break;
       case 'stippling':
-        [patternR, patternG, patternB] = PatternGenerators.generateStipplingPattern(x, y, gray, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateStipplingPattern(x, y, gray, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, layer.patternSpacing || 0);
         break;
       case 'newspaper':
-        [patternR, patternG, patternB] = PatternGenerators.generateNewspaperPattern(x, y, gray, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, previewScaleRatio, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateNewspaperPattern(x, y, gray, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, previewScaleRatio, layer.patternSpacing || 0);
         break;
       case 'dots':
-        [patternR, patternG, patternB] = PatternGenerators.generateDotsPattern(x, y, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, previewScaleRatio, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateDotsPattern(x, y, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, previewScaleRatio, layer.patternSpacing || 0);
         break;
       case 'lines':
-        [patternR, patternG, patternB] = PatternGenerators.generateLinesPattern(x, y, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, previewScaleRatio, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateLinesPattern(x, y, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, previewScaleRatio, layer.patternSpacing || 0);
         break;
       case 'waves':
-        [patternR, patternG, patternB] = PatternGenerators.generateWavesPattern(x, y, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, previewScaleRatio, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateWavesPattern(x, y, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, previewScaleRatio, layer.patternSpacing || 0);
         break;
       case 'hexagon':
-        [patternR, patternG, patternB] = PatternGenerators.generateHexagonPattern(x, y, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, previewScaleRatio, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateHexagonPattern(x, y, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, previewScaleRatio, layer.patternSpacing || 0);
         break;
       case 'brick':
-        [patternR, patternG, patternB] = PatternGenerators.generateBrickPattern(x, y, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, previewScaleRatio, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateBrickPattern(x, y, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, previewScaleRatio, layer.patternSpacing || 0);
         break;
       case 'fabric':
-        [patternR, patternG, patternB] = PatternGenerators.generateFabricPattern(x, y, layer.patternSize, layer.patternRotation, fgColor, layer.patternBackgroundColor, previewScaleRatio, layer.patternSpacing || 0);
+        [patternR, patternG, patternB] = PatternGenerators.generateFabricPattern(x, y, layer.patternSize, layer.patternRotation, fgR, fgG, fgB, bgR, bgG, bgB, previewScaleRatio, layer.patternSpacing || 0);
         break;
     }
 
     return applyBlendMode(baseR, baseG, baseB, patternR, patternG, patternB, layer.blendMode, layer.opacity);
   } else {
-    // No pattern, use layer color
-    const hex = layer.color.substring(1);
-    const rLayer = parseInt(hex.substring(0, 2), 16);
-    const gLayer = parseInt(hex.substring(2, 4), 16);
-    const bLayer = parseInt(hex.substring(4, 6), 16);
-
-    return applyBlendMode(baseR, baseG, baseB, rLayer, gLayer, bLayer, layer.blendMode, layer.opacity);
+    // No pattern, use layer color (passed as fg)
+    return applyBlendMode(baseR, baseG, baseB, fgR, fgG, fgB, layer.blendMode, layer.opacity);
   }
 };
 
@@ -79,8 +86,25 @@ export const layerBasedProcessing = (imageData: ImageData, layers: LayerConfig[]
   const width = imageData.width;
   const height = imageData.height;
 
-  const backgroundLayer = layers[layers.length - 1];
-  const thresholdLayers = layers.slice(0, layers.length - 1).filter(layer => layer.visible !== false);
+  // Pre-calculate layer colors
+  const layerColors = layers.map(layer => ({
+    fg: hexToRgb(layer.color),
+    bg: hexToRgb(layer.patternBackgroundColor || layer.color) // Fallback if missing
+  }));
+
+  const backgroundLayerIndex = layers.length - 1;
+  const backgroundLayer = layers[backgroundLayerIndex];
+  const bgColors = layerColors[backgroundLayerIndex];
+
+  const thresholdLayers = layers.slice(0, layers.length - 1);
+  // Filter visible layers but keep original indices to map back to colors?
+  // No, if we filter, we lose indices.
+  // Better to iterate indices or map filtered layers to their original colors.
+
+  // Let's create a structure that holds both config and colors for threshold layers
+  const activeThresholdLayers = thresholdLayers
+    .map((layer, index) => ({ layer, colors: layerColors[index], index }))
+    .filter(item => item.layer.visible !== false);
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -104,20 +128,22 @@ export const layerBasedProcessing = (imageData: ImageData, layers: LayerConfig[]
         [currentR, currentG, currentB] = applyLayerWithPattern(
           x, y, gray,
           { ...backgroundLayer, opacity: 100, blendMode: 'normal' },
+          bgColors.fg[0], bgColors.fg[1], bgColors.fg[2], // FG
+          bgColors.bg[0], bgColors.bg[1], bgColors.bg[2], // BG
           0, 0, 0,
           previewScaleRatio
         );
         currentA = (backgroundLayer.opacity / 100) * 255;
       }
 
-      for (let layerIndex = 0; layerIndex < thresholdLayers.length; layerIndex++) {
-        const layer = thresholdLayers[layerIndex];
-
+      for (const { layer, colors } of activeThresholdLayers) {
         if (gray <= (layer.threshold || 255)) {
           // Get target color with full opacity blended over current
           const [targetR, targetG, targetB] = applyLayerWithPattern(
             x, y, gray,
             { ...layer, opacity: 100 },
+            colors.fg[0], colors.fg[1], colors.fg[2],
+            colors.bg[0], colors.bg[1], colors.bg[2],
             currentR, currentG, currentB,
             previewScaleRatio
           );
@@ -150,8 +176,23 @@ export const floydSteinbergDither = (imageData: ImageData, layers: LayerConfig[]
   const data = new Uint8ClampedArray(imageData.data);
   const width = imageData.width;
   const height = imageData.height;
-  const backgroundLayer = layers[layers.length - 1];
-  const thresholdLayers = layers.slice(0, layers.length - 1).filter(layer => layer.visible !== false);
+
+  // Pre-calculate layer colors
+  const layerColors = layers.map(layer => ({
+    fg: hexToRgb(layer.color),
+    bg: hexToRgb(layer.patternBackgroundColor || layer.color)
+  }));
+
+  const backgroundLayerIndex = layers.length - 1;
+  const backgroundLayer = layers[backgroundLayerIndex];
+  const bgColors = layerColors[backgroundLayerIndex];
+
+  const thresholdLayers = layers.slice(0, layers.length - 1);
+  const activeThresholdLayers = thresholdLayers
+    .map((layer, index) => ({ layer, colors: layerColors[index] }))
+    .filter(item => item.layer.visible !== false);
+
+  const backgroundLayerData = { layer: backgroundLayer, colors: bgColors };
 
   // Create a copy for error accumulation
   const grayData = new Float32Array(width * height);
@@ -177,21 +218,19 @@ export const floydSteinbergDither = (imageData: ImageData, layers: LayerConfig[]
 
       const oldGray = grayData[i];
 
-      let selectedLayer = backgroundLayer;
-      for (const layer of thresholdLayers) {
-        if (oldGray <= (layer.threshold || 255)) {
-          selectedLayer = layer;
+      let selectedLayerData = backgroundLayerData;
+      for (const item of activeThresholdLayers) {
+        if (oldGray <= (item.layer.threshold || 255)) {
+          selectedLayerData = item;
           break;
         }
       }
 
+      const selectedLayer = selectedLayerData.layer;
+      const selectedColors = selectedLayerData.colors;
+
       const targetValue = selectedLayer.threshold || 128;
       const error = oldGray - targetValue;
-
-      // Apply layer styling
-      const originalR = data[idx];
-      const originalG = data[idx + 1];
-      const originalB = data[idx + 2];
 
       // Apply layer styling
 
@@ -205,6 +244,8 @@ export const floydSteinbergDither = (imageData: ImageData, layers: LayerConfig[]
         [currentR, currentG, currentB] = applyLayerWithPattern(
           x, y, Math.round(oldGray),
           { ...backgroundLayer, opacity: 100, blendMode: 'normal' },
+          bgColors.fg[0], bgColors.fg[1], bgColors.fg[2],
+          bgColors.bg[0], bgColors.bg[1], bgColors.bg[2],
           0, 0, 0,
           previewScaleRatio
         );
@@ -215,6 +256,8 @@ export const floydSteinbergDither = (imageData: ImageData, layers: LayerConfig[]
         const [targetR, targetG, targetB] = applyLayerWithPattern(
           x, y, Math.round(oldGray),
           { ...selectedLayer, opacity: 100 },
+          selectedColors.fg[0], selectedColors.fg[1], selectedColors.fg[2],
+          selectedColors.bg[0], selectedColors.bg[1], selectedColors.bg[2],
           currentR, currentG, currentB,
           previewScaleRatio
         );
@@ -258,8 +301,23 @@ export const orderedDither = (imageData: ImageData, layers: LayerConfig[], previ
   const data = new Uint8ClampedArray(imageData.data);
   const width = imageData.width;
   const height = imageData.height;
-  const backgroundLayer = layers[layers.length - 1];
-  const thresholdLayers = layers.slice(0, layers.length - 1).filter(layer => layer.visible !== false);
+
+  // Pre-calculate layer colors
+  const layerColors = layers.map(layer => ({
+    fg: hexToRgb(layer.color),
+    bg: hexToRgb(layer.patternBackgroundColor || layer.color)
+  }));
+
+  const backgroundLayerIndex = layers.length - 1;
+  const backgroundLayer = layers[backgroundLayerIndex];
+  const bgColors = layerColors[backgroundLayerIndex];
+
+  const thresholdLayers = layers.slice(0, layers.length - 1);
+  const activeThresholdLayers = thresholdLayers
+    .map((layer, index) => ({ layer, colors: layerColors[index] }))
+    .filter(item => item.layer.visible !== false);
+
+  const backgroundLayerData = { layer: backgroundLayer, colors: bgColors };
 
   const bayerMatrix = [
     [0, 8, 2, 10],
@@ -285,13 +343,16 @@ export const orderedDither = (imageData: ImageData, layers: LayerConfig[], previ
       const threshold = (bayerValue / 15) * 64 - 32; // Scale and center around 0
       const ditheredGray = Math.max(0, Math.min(255, gray + threshold));
 
-      let selectedLayer = backgroundLayer;
-      for (const layer of thresholdLayers) {
-        if (ditheredGray <= (layer.threshold || 255)) {
-          selectedLayer = layer;
+      let selectedLayerData = backgroundLayerData;
+      for (const item of activeThresholdLayers) {
+        if (ditheredGray <= (item.layer.threshold || 255)) {
+          selectedLayerData = item;
           break;
         }
       }
+
+      const selectedLayer = selectedLayerData.layer;
+      const selectedColors = selectedLayerData.colors;
 
       // Start with transparent base
       let currentR = 0;
@@ -303,6 +364,8 @@ export const orderedDither = (imageData: ImageData, layers: LayerConfig[], previ
         [currentR, currentG, currentB] = applyLayerWithPattern(
           x, y, gray,
           { ...backgroundLayer, opacity: 100, blendMode: 'normal' },
+          bgColors.fg[0], bgColors.fg[1], bgColors.fg[2],
+          bgColors.bg[0], bgColors.bg[1], bgColors.bg[2],
           0, 0, 0,
           previewScaleRatio
         );
@@ -313,6 +376,8 @@ export const orderedDither = (imageData: ImageData, layers: LayerConfig[], previ
         const [targetR, targetG, targetB] = applyLayerWithPattern(
           x, y, gray,
           { ...selectedLayer, opacity: 100 },
+          selectedColors.fg[0], selectedColors.fg[1], selectedColors.fg[2],
+          selectedColors.bg[0], selectedColors.bg[1], selectedColors.bg[2],
           currentR, currentG, currentB,
           previewScaleRatio
         );
@@ -341,8 +406,23 @@ export const atkinsonDither = (imageData: ImageData, layers: LayerConfig[], prev
   const data = new Uint8ClampedArray(imageData.data);
   const width = imageData.width;
   const height = imageData.height;
-  const backgroundLayer = layers[layers.length - 1];
-  const thresholdLayers = layers.slice(0, layers.length - 1).filter(layer => layer.visible !== false);
+
+  // Pre-calculate layer colors
+  const layerColors = layers.map(layer => ({
+    fg: hexToRgb(layer.color),
+    bg: hexToRgb(layer.patternBackgroundColor || layer.color)
+  }));
+
+  const backgroundLayerIndex = layers.length - 1;
+  const backgroundLayer = layers[backgroundLayerIndex];
+  const bgColors = layerColors[backgroundLayerIndex];
+
+  const thresholdLayers = layers.slice(0, layers.length - 1);
+  const activeThresholdLayers = thresholdLayers
+    .map((layer, index) => ({ layer, colors: layerColors[index] }))
+    .filter(item => item.layer.visible !== false);
+
+  const backgroundLayerData = { layer: backgroundLayer, colors: bgColors };
 
   // Create a copy for error accumulation
   const grayData = new Float32Array(width * height);
@@ -363,13 +443,16 @@ export const atkinsonDither = (imageData: ImageData, layers: LayerConfig[], prev
 
       const oldGray = grayData[i];
 
-      let selectedLayer = backgroundLayer;
-      for (const layer of thresholdLayers) {
-        if (oldGray <= (layer.threshold || 255)) {
-          selectedLayer = layer;
+      let selectedLayerData = backgroundLayerData;
+      for (const item of activeThresholdLayers) {
+        if (oldGray <= (item.layer.threshold || 255)) {
+          selectedLayerData = item;
           break;
         }
       }
+
+      const selectedLayer = selectedLayerData.layer;
+      const selectedColors = selectedLayerData.colors;
 
       const targetValue = selectedLayer.threshold || 128;
       const error = oldGray - targetValue;
@@ -389,6 +472,8 @@ export const atkinsonDither = (imageData: ImageData, layers: LayerConfig[], prev
         [currentR, currentG, currentB] = applyLayerWithPattern(
           x, y, Math.round(oldGray),
           { ...backgroundLayer, opacity: 100, blendMode: 'normal' },
+          bgColors.fg[0], bgColors.fg[1], bgColors.fg[2],
+          bgColors.bg[0], bgColors.bg[1], bgColors.bg[2],
           0, 0, 0,
           previewScaleRatio
         );
@@ -399,6 +484,8 @@ export const atkinsonDither = (imageData: ImageData, layers: LayerConfig[], prev
         const [targetR, targetG, targetB] = applyLayerWithPattern(
           x, y, Math.round(oldGray),
           { ...selectedLayer, opacity: 100 },
+          selectedColors.fg[0], selectedColors.fg[1], selectedColors.fg[2],
+          selectedColors.bg[0], selectedColors.bg[1], selectedColors.bg[2],
           currentR, currentG, currentB,
           previewScaleRatio
         );
@@ -458,8 +545,23 @@ export const applyErrorDiffusion = (
   const data = new Uint8ClampedArray(imageData.data);
   const width = imageData.width;
   const height = imageData.height;
-  const backgroundLayer = layers[layers.length - 1];
-  const thresholdLayers = layers.slice(0, layers.length - 1).filter(layer => layer.visible !== false);
+
+  // Pre-calculate layer colors
+  const layerColors = layers.map(layer => ({
+    fg: hexToRgb(layer.color),
+    bg: hexToRgb(layer.patternBackgroundColor || layer.color)
+  }));
+
+  const backgroundLayerIndex = layers.length - 1;
+  const backgroundLayer = layers[backgroundLayerIndex];
+  const bgColors = layerColors[backgroundLayerIndex];
+
+  const thresholdLayers = layers.slice(0, layers.length - 1);
+  const activeThresholdLayers = thresholdLayers
+    .map((layer, index) => ({ layer, colors: layerColors[index] }))
+    .filter(item => item.layer.visible !== false);
+
+  const backgroundLayerData = { layer: backgroundLayer, colors: bgColors };
 
   // Create a copy for error accumulation
   const grayData = new Float32Array(width * height);
@@ -480,13 +582,16 @@ export const applyErrorDiffusion = (
 
       const oldGray = grayData[i];
 
-      let selectedLayer = backgroundLayer;
-      for (const layer of thresholdLayers) {
-        if (oldGray <= (layer.threshold || 255)) {
-          selectedLayer = layer;
+      let selectedLayerData = backgroundLayerData;
+      for (const item of activeThresholdLayers) {
+        if (oldGray <= (item.layer.threshold || 255)) {
+          selectedLayerData = item;
           break;
         }
       }
+
+      const selectedLayer = selectedLayerData.layer;
+      const selectedColors = selectedLayerData.colors;
 
       const targetValue = selectedLayer.threshold || 128;
       const error = oldGray - targetValue;
@@ -506,6 +611,8 @@ export const applyErrorDiffusion = (
         [currentR, currentG, currentB] = applyLayerWithPattern(
           x, y, Math.round(oldGray),
           { ...backgroundLayer, opacity: 100, blendMode: 'normal' },
+          bgColors.fg[0], bgColors.fg[1], bgColors.fg[2],
+          bgColors.bg[0], bgColors.bg[1], bgColors.bg[2],
           0, 0, 0,
           previewScaleRatio
         );
@@ -516,6 +623,8 @@ export const applyErrorDiffusion = (
         const [targetR, targetG, targetB] = applyLayerWithPattern(
           x, y, Math.round(oldGray),
           { ...selectedLayer, opacity: 100 },
+          selectedColors.fg[0], selectedColors.fg[1], selectedColors.fg[2],
+          selectedColors.bg[0], selectedColors.bg[1], selectedColors.bg[2],
           currentR, currentG, currentB,
           previewScaleRatio
         );
@@ -593,8 +702,23 @@ export const riemersmaDither = (imageData: ImageData, layers: LayerConfig[], pre
   const data = new Uint8ClampedArray(imageData.data);
   const width = imageData.width;
   const height = imageData.height;
-  const backgroundLayer = layers[layers.length - 1];
-  const thresholdLayers = layers.slice(0, layers.length - 1).filter(layer => layer.visible !== false);
+
+  // Pre-calculate layer colors
+  const layerColors = layers.map(layer => ({
+    fg: hexToRgb(layer.color),
+    bg: hexToRgb(layer.patternBackgroundColor || layer.color)
+  }));
+
+  const backgroundLayerIndex = layers.length - 1;
+  const backgroundLayer = layers[backgroundLayerIndex];
+  const bgColors = layerColors[backgroundLayerIndex];
+
+  const thresholdLayers = layers.slice(0, layers.length - 1);
+  const activeThresholdLayers = thresholdLayers
+    .map((layer, index) => ({ layer, colors: layerColors[index] }))
+    .filter(item => item.layer.visible !== false);
+
+  const backgroundLayerData = { layer: backgroundLayer, colors: bgColors };
 
   // Create error buffer for Riemersma curve
   const errorBuffer: number[] = new Array(Math.min(width, height)).fill(0);
@@ -650,13 +774,16 @@ export const riemersmaDither = (imageData: ImageData, layers: LayerConfig[], pre
     // Add accumulated error from buffer
     const adjustedGray = Math.max(0, Math.min(255, gray + errorBuffer[bufferIndex]));
 
-    let selectedLayer = backgroundLayer;
-    for (const layer of thresholdLayers) {
-      if (adjustedGray <= (layer.threshold || 255)) {
-        selectedLayer = layer;
+    let selectedLayerData = backgroundLayerData;
+    for (const item of activeThresholdLayers) {
+      if (adjustedGray <= (item.layer.threshold || 255)) {
+        selectedLayerData = item;
         break;
       }
     }
+
+    const selectedLayer = selectedLayerData.layer;
+    const selectedColors = selectedLayerData.colors;
 
     const quantizedValue = selectedLayer.threshold || 128;
     const error = adjustedGray - quantizedValue;
@@ -671,6 +798,8 @@ export const riemersmaDither = (imageData: ImageData, layers: LayerConfig[], pre
       [currentR, currentG, currentB] = applyLayerWithPattern(
         x, y, gray,
         { ...backgroundLayer, opacity: 100, blendMode: 'normal' },
+        bgColors.fg[0], bgColors.fg[1], bgColors.fg[2],
+        bgColors.bg[0], bgColors.bg[1], bgColors.bg[2],
         0, 0, 0,
         previewScaleRatio
       );
@@ -681,6 +810,8 @@ export const riemersmaDither = (imageData: ImageData, layers: LayerConfig[], pre
       const [targetR, targetG, targetB] = applyLayerWithPattern(
         x, y, gray,
         { ...selectedLayer, opacity: 100 },
+        selectedColors.fg[0], selectedColors.fg[1], selectedColors.fg[2],
+        selectedColors.bg[0], selectedColors.bg[1], selectedColors.bg[2],
         currentR, currentG, currentB,
         previewScaleRatio
       );
