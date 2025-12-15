@@ -276,7 +276,7 @@ export function LayerControls({
 
           return (
             <div
-              key={`layer-${index}-${layer.color}`}
+              key={`layer-${index}`}
               className={`rounded transition-all duration-200 ease-out ${selectedLayer === index
                 ? 'elevation-3 border-2 border-primary/40 surface-container-high hover:bg-surface-container-highest transition-colorsest ring-2 ring-primary/30'
                 : 'elevation-2 border border-border surface-container hover:elevation-4 hover:surface-container-high hover:bg-surface-container-highest transition-colors hover:scale-[1.008] hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-primary/20'
@@ -289,15 +289,15 @@ export function LayerControls({
                   {/* Layer Name */}
                   <div className="flex items-center gap-2 flex-1">
                     {/* Color Thumbnail / Picker */}
-                    <div className="relative w-6 h-6 rounded-full border border-border overflow-hidden cursor-pointer shadow-sm flex-shrink-0 group">
+                    <div className="relative w-6 h-6 rounded-full border border-border cursor-pointer shadow-sm flex-shrink-0 group">
                       <input
                         type="color"
                         value={layer.color}
                         onChange={(e) => onLayerUpdate(index, 'color', e.target.value)}
-                        className="absolute inset-0 w-[150%] h-[150%] p-0 border-0 opacity-0 cursor-pointer top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer rounded-full"
                         title="Change layer color"
                       />
-                      <div className="w-full h-full" style={{ backgroundColor: layer.color }} />
+                      <div className="w-full h-full rounded-full pointer-events-none" style={{ backgroundColor: layer.color }} />
                     </div>
 
                     <Label className="text-sm font-medium cursor-pointer font-mono" onClick={() => onLayerSelect(index)}>
