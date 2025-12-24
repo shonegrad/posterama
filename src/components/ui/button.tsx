@@ -9,22 +9,22 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/85 hover:shadow-xl hover:shadow-primary/30 dark:hover:shadow-primary/50 hover:scale-[1.02] active:scale-[0.98]",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 dark:hover:shadow-primary/50 hover:scale-[1.05] active:scale-[0.95]",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/85 hover:shadow-xl hover:shadow-destructive/30 dark:hover:shadow-destructive/50 hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-destructive/30 dark:focus-visible:ring-destructive/50 dark:bg-destructive/70",
+          "bg-destructive text-white hover:bg-destructive/90 hover:shadow-xl hover:shadow-destructive/30 dark:hover:shadow-destructive/50 hover:scale-[1.05] active:scale-[0.95] focus-visible:ring-destructive/30 dark:focus-visible:ring-destructive/50 dark:bg-destructive/70",
         outline:
-          "border-2 border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 dark:hover:shadow-primary/30 hover:scale-[1.01] active:scale-[0.99] dark:bg-input/30 dark:border-input dark:hover:bg-input/70 dark:hover:border-primary/60",
+          "border-2 border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 dark:hover:shadow-primary/30 hover:scale-[1.03] active:scale-[0.97] dark:bg-input/30 dark:border-input dark:hover:bg-input/70 dark:hover:border-primary/60",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-lg hover:shadow-secondary/20 hover:scale-[1.01] active:scale-[0.99]",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-lg hover:shadow-secondary/20 hover:scale-[1.03] active:scale-[0.97]",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 hover:shadow-md hover:shadow-primary/10 dark:hover:shadow-primary/20 hover:scale-[1.01] active:scale-[0.99]",
-        link: "text-primary underline-offset-4 hover:underline hover:text-primary/80 active:text-primary/60",
+          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 hover:shadow-md hover:shadow-primary/10 dark:hover:shadow-primary/20 hover:scale-[1.05] active:scale-[0.95]",
+        link: "text-primary underline-offset-4 hover:underline hover:text-primary/80 active:text-primary/60 hover:scale-[1.02] active:scale-[0.98]",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9 rounded-md",
+        icon: "size-9 rounded-md hover:rotate-3 transition-transform",
       },
     },
     defaultVariants: {

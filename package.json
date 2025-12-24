@@ -1,6 +1,6 @@
 {
       "name": "posterama",
-      "version": "0.2.0",
+      "version": "1.0.0",
       "description": "A browser-based image processing tool for creating poster-style art using dithering and patterns.",
       "author": "Nebojsa Despotovic",
       "type": "module",

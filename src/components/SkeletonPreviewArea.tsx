@@ -8,21 +8,21 @@ interface SkeletonPreviewAreaProps {
 
 export function SkeletonPreviewArea({ onBrowseClick, isDragOver = false }: SkeletonPreviewAreaProps) {
   return (
-    <div className={`h-full flex items-center justify-center surface-container-low rounded border-2 border-dashed relative overflow-hidden transition-all duration-200 ${isDragOver
-        ? 'border-primary bg-primary/5 scale-105'
-        : 'border-border'
+    <div className={`h-full flex items-center justify-center surface-container-low rounded border-2 border-dashed relative overflow-hidden transition-all duration-300 ${isDragOver
+      ? 'border-primary bg-primary/5 scale-105 shadow-xl shadow-primary/20'
+      : 'border-border hover:border-primary/50 hover:scale-[1.01] hover:shadow-2xl hover:shadow-primary/10'
       }`}>
       {/* Background grid pattern */}
+      {/* Background Image with Overlay */}
       <div
-        className="absolute inset-0 opacity-5"
+        className="absolute inset-0 z-0"
         style={{
-          backgroundImage: `
-            linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '20px 20px'
+          backgroundImage: 'url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2672&auto=format&fit=crop")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       />
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] z-0" />
 
       <div className="text-center max-w-md mx-auto p-8 relative z-10">
         <div className="mb-6">

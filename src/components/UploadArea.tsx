@@ -29,13 +29,13 @@ export function UploadArea({
 }: UploadAreaProps) {
   return (
     <div className="flex-1 flex items-center justify-center" style={{ minHeight: '600px' }}>
-      <div 
+      <div
         ref={dropZoneRef}
         className={`
-          w-full h-full rounded-lg overflow-hidden bg-muted/10 flex items-center justify-center shadow-inner transition-all duration-200
-          ${isDragOver 
-            ? 'border-4 border-dashed border-primary bg-primary/5' 
-            : 'border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/20'
+          w-full h-full rounded-lg overflow-hidden bg-muted/10 flex items-center justify-center shadow-inner transition-all duration-300
+          ${isDragOver
+            ? 'border-4 border-dashed border-primary bg-primary/5 scale-[1.02]'
+            : 'border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/20 hover:scale-[1.01] hover:shadow-lg hover:shadow-primary/5'
           }
           ${isProcessing ? 'pointer-events-none opacity-50' : ''}
         `}
@@ -73,7 +73,7 @@ export function UploadArea({
             </>
           )}
         </div>
-        
+
         {/* Error Display inside upload area */}
         {error && (
           <div className="absolute bottom-4 left-4 right-4">
