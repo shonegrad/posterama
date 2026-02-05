@@ -271,6 +271,28 @@ export function useImageProcessor() {
     });
   }, [setLayers, updateStatus]);
 
+  // Reorder a layer (move up/down)
+  const reorderLayer = useCallback((fromIndex: number, toIndex: number) => {
+    setLayers(prevLayers => {
+      const backgroundIndex = prevLayers.length - 1;
+
+      // Don't allow moving background or moving to background position
+      if (fromIndex === backgroundIndex || toIndex >= backgroundIndex ||
+        fromIndex < 0 || fromIndex >= backgroundIndex ||
+        toIndex < 0 || fromIndex === toIndex) {
+        updateStatus('Cannot reorder background layer');
+        return prevLayers;
+      }
+
+      const newLayers = [...prevLayers];
+      const [movedLayer] = newLayers.splice(fromIndex, 1);
+      newLayers.splice(toIndex, 0, movedLayer);
+
+      updateStatus('Layer reordered');
+      return newLayers;
+    });
+  }, [setLayers, updateStatus]);
+
   // Optimized canvas processing - processes off-screen to prevent flickering
   const processImageOnCanvas = useCallback((zoomLevel: number) => {
     if (!previewImage || !showPreview || !canvasRef.current || isProcessing) {
@@ -811,6 +833,7 @@ export function useImageProcessor() {
     exportImage, // New export function
     addLayer,
     deleteLayer,
+    reorderLayer,
 
     // History
     undo: historyActions.undo,

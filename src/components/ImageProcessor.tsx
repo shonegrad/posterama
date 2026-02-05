@@ -88,6 +88,7 @@ export function ImageProcessor() {
     canRedo,
     addLayer,
     deleteLayer,
+    reorderLayer,
 
   } = useImageProcessor();
 
@@ -753,6 +754,7 @@ export function ImageProcessor() {
                   isOptimized={isOptimized}
                   onAddLayer={addLayer}
                   onDeleteLayer={deleteLayer}
+                  onReorderLayer={reorderLayer}
                 />
               </div>
             </div>

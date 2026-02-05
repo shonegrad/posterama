@@ -4,7 +4,7 @@ import { Label } from './ui/label';
 import { Slider } from './ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Toggle } from './ui/toggle';
-import { RotateCcw, Eye, EyeOff, ChevronDown, ChevronUp, Trash2, Grid3x3 } from 'lucide-react';
+import { RotateCcw, Eye, EyeOff, ChevronDown, ChevronUp, Trash2, Grid3x3, ArrowUp, ArrowDown } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { useEffect, useRef, useState, useCallback } from 'react';
 
@@ -22,6 +22,7 @@ interface LayerControlsProps {
   isOptimized: boolean;
   onAddLayer: () => void;
   onDeleteLayer: (index: number) => void;
+  onReorderLayer: (fromIndex: number, toIndex: number) => void;
 }
 
 export function LayerControls({
@@ -37,7 +38,8 @@ export function LayerControls({
   generateSmartFilename,
   isOptimized,
   onAddLayer,
-  onDeleteLayer
+  onDeleteLayer,
+  onReorderLayer
 }: LayerControlsProps) {
   const colorPickerRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -321,6 +323,40 @@ export function LayerControls({
                     >
                       {isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                     </Button>
+
+                    {/* Reorder Buttons (not for background) */}
+                    {!isBackgroundLayer(index) && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="p-1.5 h-6 w-6 hover:bg-primary/10 disabled:opacity-30"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onReorderLayer(index, index - 1);
+                          }}
+                          disabled={index === 0}
+                          title={`Move ${getLayerName(index)} up`}
+                          aria-label={`Move ${getLayerName(index)} up`}
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="p-1.5 h-6 w-6 hover:bg-primary/10 disabled:opacity-30"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onReorderLayer(index, index + 1);
+                          }}
+                          disabled={index >= layers.length - 2}
+                          title={`Move ${getLayerName(index)} down`}
+                          aria-label={`Move ${getLayerName(index)} down`}
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </Button>
+                      </>
+                    )}
 
                     {/* Delete Button (not for background) */}
                     {!isBackgroundLayer(index) && (
