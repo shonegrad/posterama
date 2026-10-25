@@ -275,12 +275,13 @@ export const IMAGE_SCALE_MAX = 1.0; // 100% (original)
 export const IMAGE_SCALE_DEFAULT = 1.0; // Default to original size
 export const IMAGE_SCALE_PRESETS = [0.1, 0.25, 0.5, 0.75, 1.0]; // Common scale values
 
-// Start screen background images (Unsplash)
+// Start screen background images (bundled locally in /public/backgrounds
+// so the app works offline and doesn't depend on CDN availability)
 export const START_SCREEN_IMAGES = [
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2672&auto=format&fit=crop', // Space
-  'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2000&auto=format&fit=crop', // Nebula
-  'https://images.unsplash.com/photo-1540206395-688085723adb?q=80&w=2000&auto=format&fit=crop', // Abstract
-  'https://images.unsplash.com/photo-1506318137071-a8bcbf6755dd?q=80&w=2000&auto=format&fit=crop', // Aurora
-  'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2000&auto=format&fit=crop', // Texture
-  'https://images.unsplash.com/photo-1484589065579-248aad0d8b13?q=80&w=2000&auto=format&fit=crop'  // Abstract Art
+  '/backgrounds/space.jpg',              // Space
+  '/backgrounds/nebula.jpg',             // Nebula
+  '/backgrounds/texture.jpg',            // Texture
+  '/backgrounds/abstract-art.jpg',       // Abstract Art
+  '/backgrounds/abstract-ink.jpg',       // Abstract Ink
+  '/backgrounds/aurora-night.jpg'        // Gradient Sky
 ];

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Upload, Image } from 'lucide-react';
 import { Button } from './ui/button';
 import { START_SCREEN_IMAGES } from '../lib/constants';
@@ -9,13 +9,10 @@ interface SkeletonPreviewAreaProps {
 }
 
 export function SkeletonPreviewArea({ onBrowseClick, isDragOver = false }: SkeletonPreviewAreaProps) {
-  const [backgroundImage, setBackgroundImage] = useState<string>('');
-
-  useEffect(() => {
-    // Select a random image on mount
-    const randomIndex = Math.floor(Math.random() * START_SCREEN_IMAGES.length);
-    setBackgroundImage(START_SCREEN_IMAGES[randomIndex]);
-  }, []);
+  // Pick a random background once per mount (state initializer - no flash/re-render)
+  const [backgroundImage] = useState<string>(
+    () => START_SCREEN_IMAGES[Math.floor(Math.random() * START_SCREEN_IMAGES.length)]
+  );
 
   return (
     <div className={`h-full flex items-center justify-center surface-container-low relative overflow-hidden transition-all duration-300 ${isDragOver

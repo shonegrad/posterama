@@ -8,7 +8,17 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Upload, Download, Loader2, X, ChevronDown, Moon, Sun, Save, Trash2, FolderOpen } from 'lucide-react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from './ui/alert-dialog';
+import { Upload, Download, Loader2, X, ChevronDown, Moon, Sun, Save, Trash2, FolderOpen, Pencil, FileUp, FileDown } from 'lucide-react';
 import { ExportDialog, ExportOptions } from './ExportDialog';
 import { SavePresetDialog } from './SavePresetDialog';
 import { UserPreset } from '../hooks/useUserPresets';
@@ -33,6 +43,10 @@ interface TopBarProps {
     onSavePreset: (name: string) => void;
     onLoadPreset: (id: string) => void;
     onDeletePreset: (id: string) => void;
+    onRenamePreset: (id: string, newName: string) => void;
+    onDeleteAllPresets: () => void;
+    /** Parses a JSON file's text and imports valid presets; returns count added */
+    onImportPresets: (jsonText: string) => number;
     hasPresetWithName: (name: string) => boolean;
 }
 
@@ -55,20 +69,70 @@ export function TopBar({
     onSavePreset,
     onLoadPreset,
     onDeletePreset,
+    onRenamePreset,
+    onDeleteAllPresets,
+    onImportPresets,
     hasPresetWithName,
 }: TopBarProps) {
     const [isSavePresetDialogOpen, setIsSavePresetDialogOpen] = React.useState(false);
+    const [renamingPreset, setRenamingPreset] = React.useState<UserPreset | null>(null);
+    const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = React.useState(false);
+    const presetsImportInputRef = React.useRef<HTMLInputElement>(null);
+
+    // Duplicate-name check for renames: keeping the preset's own current name is fine
+    const isRenameNameTaken = (newName: string): boolean => {
+        if (!renamingPreset) return false;
+        const self = userPresets.find(p => p.id === renamingPreset.id);
+        if (self && self.name.toLowerCase() === newName.trim().toLowerCase()) return false;
+        return hasPresetWithName(newName);
+    };
+
+    const handleExportPresets = () => {
+        const blob = new Blob([JSON.stringify(userPresets, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('download', `posterama-presets-${new Date().toISOString().slice(0, 10)}.json`);
+        link.href = url;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
+    };
+
+    const handleImportFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        try {
+            const text = await file.text();
+            onImportPresets(text);
+        } catch {
+            // unreadable file - ignore, onImportPresets will never be a partial import
+        }
+    };
+
     return (
         <div className="flex-shrink-0 border-b border-border surface-container-high hover:bg-surface-container-highest transition-colors h-12 flex items-center px-4 justify-end gap-2">
             <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
-                handleImageUpload(e);
-            }}
+                    handleImageUpload(e);
+                }}
                 ref={fileInputRef}
                 className="hidden"
                 disabled={isProcessing}
+            />
+            {/* Import presets file input */}
+            <input
+                type="file"
+                accept="application/json,.json"
+                onChange={handleImportFileChange}
+                ref={presetsImportInputRef}
+                className="hidden"
             />
             {/* Dark Mode Toggle */}
             <Button
@@ -101,6 +165,7 @@ export function TopBar({
                         <Save className="w-4 h-4 mr-2" />
                         Save Current
                     </DropdownMenuItem>
+
                     {userPresets.length > 0 && (
                         <>
                             <DropdownMenuSeparator />
@@ -112,21 +177,39 @@ export function TopBar({
                                     onClick={() => onLoadPreset(preset.id)}
                                 >
                                     <span className="truncate">{preset.name}</span>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onDeletePreset(preset.id);
-                                        }}
-                                    >
-                                        <Trash2 className="w-3 h-3" />
-                                    </Button>
+                                    <span className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-5 w-5 p-0 hover:bg-primary/10"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setRenamingPreset(preset);
+                                            }}
+                                            title={`Rename ${preset.name}`}
+                                            aria-label={`Rename ${preset.name}`}
+                                        >
+                                            <Pencil className="w-3 h-3" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-5 w-5 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onDeletePreset(preset.id);
+                                            }}
+                                            title={`Delete ${preset.name}`}
+                                            aria-label={`Delete ${preset.name}`}
+                                        >
+                                            <Trash2 className="w-3 h-3" />
+                                        </Button>
+                                    </span>
                                 </DropdownMenuItem>
                             ))}
                         </>
                     )}
+
                     {userPresets.length === 0 && (
                         <>
                             <DropdownMenuSeparator />
@@ -134,6 +217,28 @@ export function TopBar({
                                 No presets saved yet
                             </div>
                         </>
+                    )}
+
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => presetsImportInputRef.current?.click()}>
+                        <FileUp className="w-4 h-4 mr-2" />
+                        Import JSON...
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={handleExportPresets}
+                        disabled={userPresets.length === 0}
+                    >
+                        <FileDown className="w-4 h-4 mr-2" />
+                        Export JSON
+                    </DropdownMenuItem>
+                    {userPresets.length > 0 && (
+                        <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => setIsDeleteAllDialogOpen(true)}
+                        >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete All...
+                        </DropdownMenuItem>
                     )}
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -144,6 +249,44 @@ export function TopBar({
                 onSave={onSavePreset}
                 hasPresetWithName={hasPresetWithName}
             />
+
+            <SavePresetDialog
+                isOpen={!!renamingPreset}
+                onClose={() => setRenamingPreset(null)}
+                mode="rename"
+                initialName={renamingPreset?.name ?? ''}
+                onSave={(newName) => {
+                    if (renamingPreset) {
+                        onRenamePreset(renamingPreset.id, newName);
+                    }
+                }}
+                hasPresetWithName={isRenameNameTaken}
+            />
+
+            <AlertDialog open={isDeleteAllDialogOpen} onOpenChange={setIsDeleteAllDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete all presets?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This permanently removes all {userPresets.length} saved
+                            preset{userPresets.length === 1 ? '' : 's'} from this browser. This
+                            cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                            onClick={() => {
+                                onDeleteAllPresets();
+                                setIsDeleteAllDialogOpen(false);
+                            }}
+                        >
+                            Delete All
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             <div className="h-4 w-px bg-border mx-1" />
 

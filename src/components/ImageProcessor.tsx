@@ -607,6 +607,27 @@ export function ImageProcessor() {
           userPresets.deletePreset(id);
           updateStatus(`Deleted preset: ${preset?.name}`);
         }}
+        onRenamePreset={(id, newName) => {
+          userPresets.renamePreset(id, newName);
+          updateStatus(`Renamed preset: ${newName}`);
+        }}
+        onDeleteAllPresets={() => {
+          const count = userPresets.presets.length;
+          userPresets.deleteAllPresets();
+          updateStatus(`Deleted ${count} preset${count === 1 ? '' : 's'}`);
+        }}
+        onImportPresets={(jsonText) => {
+          let count = 0;
+          try {
+            count = userPresets.importPresets(JSON.parse(jsonText));
+          } catch {
+            count = 0;
+          }
+          updateStatus(count > 0
+            ? `Imported ${count} preset${count === 1 ? '' : 's'}`
+            : 'No valid presets found in file');
+          return count;
+        }}
         hasPresetWithName={userPresets.hasPresetWithName}
       />
 

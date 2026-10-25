@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import {
@@ -16,6 +16,10 @@ interface SavePresetDialogProps {
     onClose: () => void;
     onSave: (name: string) => void;
     hasPresetWithName: (name: string) => boolean;
+    /** 'save' creates a new preset, 'rename' edits an existing one */
+    mode?: 'save' | 'rename';
+    /** Preset name shown when in rename mode */
+    initialName?: string;
 }
 
 export function SavePresetDialog({
@@ -23,9 +27,20 @@ export function SavePresetDialog({
     onClose,
     onSave,
     hasPresetWithName,
+    mode = 'save',
+    initialName = '',
 }: SavePresetDialogProps) {
+    const isRename = mode === 'rename';
     const [name, setName] = useState('');
     const [error, setError] = useState('');
+
+    // Prefill the name when the dialog opens
+    useEffect(() => {
+        if (isOpen) {
+            setName(initialName);
+            setError('');
+        }
+    }, [isOpen, initialName]);
 
     const handleSave = () => {
         const trimmedName = name.trim();
@@ -36,7 +51,9 @@ export function SavePresetDialog({
         }
 
         if (hasPresetWithName(trimmedName)) {
-            setError('A preset with this name already exists');
+            setError(isRename
+                ? 'Another preset already uses this name'
+                : 'A preset with this name already exists');
             return;
         }
 
@@ -56,9 +73,11 @@ export function SavePresetDialog({
         <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
             <DialogContent className="sm:max-w-[400px]">
                 <DialogHeader>
-                    <DialogTitle>Save Preset</DialogTitle>
+                    <DialogTitle>{isRename ? 'Rename Preset' : 'Save Preset'}</DialogTitle>
                     <DialogDescription>
-                        Save your current layer configuration as a preset.
+                        {isRename
+                            ? 'Enter a new name for this preset.'
+                            : 'Save your current layer configuration as a preset.'}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4">
@@ -82,7 +101,7 @@ export function SavePresetDialog({
                         Cancel
                     </Button>
                     <Button onClick={handleSave}>
-                        Save Preset
+                        {isRename ? 'Rename' : 'Save Preset'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
