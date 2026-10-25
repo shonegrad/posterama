@@ -25,7 +25,7 @@ export function useImageProcessor() {
   // History state management
   const [historyState, historyActions] = useHistory<ProcessorHistoryState>({
     layers: [...DEFAULT_LAYERS],
-    algorithm: 'atkinson'
+    algorithm: 'simple'
   });
 
   const { layers, algorithm } = historyState;
@@ -92,7 +92,7 @@ export function useImageProcessor() {
     // These are preserved so the user doesn't lose their configuration
 
     // Optional: could choose to clear history here, but usually users might want to keep history
-    // historyActions.clear({ layers: [...DEFAULT_LAYERS], algorithm: 'atkinson' });
+    // historyActions.clear({ layers: [...DEFAULT_LAYERS], algorithm: 'simple' });
 
     updateStatus('Image cleared');
   }, [canvasRef, fileInputRef, updateStatus]);
@@ -135,7 +135,7 @@ export function useImageProcessor() {
     setIsProcessing(true);
     updateStatus('Reading image file...');
     setOriginalFileName(fileName || file.name.split('.')[0]);
-    setAlgorithm('atkinson');
+    setAlgorithm('simple');
 
     try {
       const reader = new FileReader();

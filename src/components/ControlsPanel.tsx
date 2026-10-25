@@ -36,8 +36,8 @@ export function ControlsPanel({
 }: ControlsPanelProps) {
 
 
-  // Ensure algorithm is valid, fallback to 'atkinson' if not
-  const activeAlgorithm = ALGORITHM_INFO[algorithm] ? algorithm : 'atkinson';
+  // Ensure algorithm is valid, fallback to 'simple' if not
+  const activeAlgorithm = ALGORITHM_INFO[algorithm] ? algorithm : 'simple';
 
   return (
     <div className="p-4">

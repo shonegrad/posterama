@@ -3,8 +3,7 @@ import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Slider } from './ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Toggle } from './ui/toggle';
-import { RotateCcw, Eye, EyeOff, ChevronDown, ChevronUp, Trash2, Grid3x3, ArrowUp, ArrowDown } from 'lucide-react';
+import { RotateCcw, Eye, EyeOff, ChevronDown, ChevronUp, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface LayerControlsProps {
@@ -370,48 +369,37 @@ export function LayerControls({
                       />
                     </div>
 
-                    {/* Row 4: Pattern Toggle */}
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm font-medium font-mono">Pattern</Label>
-                      <Toggle
-                        pressed={layer.usePattern || false}
-                        onPressedChange={(pressed) => onLayerUpdate(index, 'usePattern', pressed)}
-                        variant="outline"
-                        size="sm"
-                        className="h-7 w-7 p-0 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground border-border"
-                        aria-label="Toggle pattern"
+                    {/* Row 4: Pattern selector (None = plain color fill) */}
+                    <div className="flex items-center gap-2">
+                      <Label className="text-sm font-medium font-mono flex-shrink-0">Pattern</Label>
+                      <Select
+                        value={layer.pattern}
+                        onValueChange={(value: LayerConfig['pattern']) => {
+                          // Keep the usePattern flag in sync with the dropdown
+                          onLayerUpdate(index, 'usePattern', value !== 'none');
+                          onLayerUpdate(index, 'pattern', value);
+                        }}
                       >
-                        <Grid3x3 className="h-4 w-4" />
-                      </Toggle>
+                        <SelectTrigger className="elevation-1 border-0 h-7 surface-container-high hover:bg-surface-container-highest transition-colors text-sm flex-1 min-w-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="surface-container-high hover:bg-surface-container-highest transition-colors elevation-3 border-0">
+                          <SelectItem value="none" className="text-sm">None</SelectItem>
+                          <SelectItem value="halftone" className="text-sm">Halftone Dots</SelectItem>
+                          <SelectItem value="screentone" className="text-sm">Screentone Lines</SelectItem>
+                          <SelectItem value="dots" className="text-sm">Simple Dots</SelectItem>
+                          <SelectItem value="lines" className="text-sm">Grid Lines</SelectItem>
+                          <SelectItem value="waves" className="text-sm">Wave Pattern</SelectItem>
+                          <SelectItem value="hexagon" className="text-sm">Hexagon Grid</SelectItem>
+                          <SelectItem value="brick" className="text-sm">Brick Pattern</SelectItem>
+                          <SelectItem value="fabric" className="text-sm">Fabric Weave</SelectItem>
+                          <SelectItem value="noise" className="text-sm">Grunge Noise</SelectItem>
+                          <SelectItem value="crosshatch" className="text-sm">Crosshatch</SelectItem>
+                          <SelectItem value="stippling" className="text-sm">Stippling</SelectItem>
+                          <SelectItem value="newspaper" className="text-sm">Newspaper Print</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-
-                    {/* Pattern Selection - Only show if pattern mode is enabled */}
-                    {layer.usePattern && (
-                      <div className="space-y-2 pt-2">
-                        <Select
-                          value={layer.pattern}
-                          onValueChange={(value: LayerConfig['pattern']) => onLayerUpdate(index, 'pattern', value)}
-                        >
-                          <SelectTrigger className="elevation-1 border-0 h-7 surface-container-high hover:bg-surface-container-highest transition-colors text-sm text-center">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="surface-container-high hover:bg-surface-container-highest transition-colors elevation-3 border-0">
-                            <SelectItem value="halftone">Halftone Dots</SelectItem>
-                            <SelectItem value="screentone">Screentone Lines</SelectItem>
-                            <SelectItem value="dots">Simple Dots</SelectItem>
-                            <SelectItem value="lines">Grid Lines</SelectItem>
-                            <SelectItem value="waves">Wave Pattern</SelectItem>
-                            <SelectItem value="hexagon">Hexagon Grid</SelectItem>
-                            <SelectItem value="brick">Brick Pattern</SelectItem>
-                            <SelectItem value="fabric">Fabric Weave</SelectItem>
-                            <SelectItem value="noise">Grunge Noise</SelectItem>
-                            <SelectItem value="crosshatch">Crosshatch</SelectItem>
-                            <SelectItem value="stippling">Stippling</SelectItem>
-                            <SelectItem value="newspaper">Newspaper Print</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
 
                     {/* Pattern Controls - Only show if pattern mode is enabled */}
                     {layer.usePattern && layer.pattern !== 'none' && (
