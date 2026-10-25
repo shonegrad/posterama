@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
+import { stripExtension, resolveExportScale } from '../lib/exportUtils';
 import {
     Dialog,
     DialogContent,
@@ -53,25 +54,15 @@ export function ExportDialog({
     // Initialize filename when dialog opens
     useEffect(() => {
         if (isOpen) {
-            // Remove extension if present, otherwise keep original name
-            const nameWithoutExt = originalFilename.lastIndexOf('.') > 0
-                ? originalFilename.substring(0, originalFilename.lastIndexOf('.'))
-                : originalFilename;
-            setFilename(nameWithoutExt || 'image');
+            setFilename(stripExtension(originalFilename) || 'image');
         }
     }, [isOpen, originalFilename]);
 
     const handleExport = async () => {
-        let finalScale = scale === 'custom' ? customScale : parseFloat(scale);
-
-        if (isNaN(finalScale) || finalScale <= 0) {
-            finalScale = 1;
-        }
-
         await onExport({
             format,
             quality: quality / 100,
-            scale: finalScale,
+            scale: resolveExportScale(scale, customScale),
             filename: filename || 'image'
         });
 
@@ -82,7 +73,7 @@ export function ExportDialog({
 
     const getEstimatedFileSize = () => {
         // Very rough estimation
-        const finalScale = scale === 'custom' ? customScale : parseFloat(scale);
+        const finalScale = resolveExportScale(scale, customScale);
         const width = imageDimensions.width * finalScale;
         const height = imageDimensions.height * finalScale;
         const pixels = width * height;
@@ -98,7 +89,7 @@ export function ExportDialog({
     };
 
     const getOutputDimensions = () => {
-        const finalScale = scale === 'custom' ? customScale : parseFloat(scale);
+        const finalScale = resolveExportScale(scale, customScale);
         const width = Math.round(imageDimensions.width * finalScale);
         const height = Math.round(imageDimensions.height * finalScale);
         return `${width} x ${height} px`;
