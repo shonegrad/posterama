@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { CheckCircle, AlertCircle, Info, Zap, Loader2 } from 'lucide-react';
 
 interface FooterProps {

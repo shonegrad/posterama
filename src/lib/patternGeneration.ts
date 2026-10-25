@@ -107,7 +107,7 @@ export const generateScreentonePattern = (
   const scaledSpacing = patternSpacing * previewScaleRatio;
   const period = Math.max(2, scaledSize + scaledSpacing);
 
-  const [rotatedX, rotatedY] = rotateCoordinates(x, y, -patternRotation);
+  const [, rotatedY] = rotateCoordinates(x, y, -patternRotation);
 
   const density = 1 - (gray / 255);
   const maxLineWidth = scaledSize;
@@ -128,8 +128,8 @@ export const generateNoisePattern = (
   x: number,
   y: number,
   gray: number,
-  patternSize: number,
-  patternRotation: number,
+  _patternSize: number,
+  _patternRotation: number,
   fgR: number,
   fgG: number,
   fgB: number,
@@ -196,8 +196,8 @@ export const generateStipplingPattern = (
   x: number,
   y: number,
   gray: number,
-  patternSize: number,
-  patternRotation: number,
+  _patternSize: number,
+  _patternRotation: number,
   fgR: number,
   fgG: number,
   fgB: number,

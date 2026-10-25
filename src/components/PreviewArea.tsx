@@ -1,5 +1,5 @@
 import { Slider } from './ui/slider';
-import { ZoomIn, ZoomOut, RotateCcw, Move, MousePointer2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Move } from 'lucide-react';
 import { Button } from './ui/button';
 import { ZOOM_MIN, ZOOM_MAX } from '../lib/constants';
 

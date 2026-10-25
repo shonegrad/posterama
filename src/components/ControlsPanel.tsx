@@ -1,9 +1,9 @@
-import { ThresholdAlgorithm, ColorSwatch, ALGORITHM_INFO, COLOR_PRESETS } from '../lib/constants';
+import { ThresholdAlgorithm, ColorSwatch, ALGORITHM_INFO, COLOR_PRESETS, LayerConfig } from '../lib/constants';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
-import { Palette, Undo, Redo } from 'lucide-react';
+import { Undo, Redo } from 'lucide-react';
 
 interface ControlsPanelProps {
   algorithm: ThresholdAlgorithm;
@@ -12,7 +12,7 @@ interface ControlsPanelProps {
   colorPalette: ColorSwatch[];
   selectedLayer: number;
   getLayerName: (index: number) => string;
-  onApplyColor: (layerIndex: number, field: keyof any, value: any) => void;
+  onApplyColor: (layerIndex: number, field: keyof LayerConfig, value: LayerConfig[keyof LayerConfig]) => void;
   updateStatus: (status: string) => void;
   undo: () => void;
   redo: () => void;

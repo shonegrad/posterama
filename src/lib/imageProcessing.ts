@@ -112,7 +112,6 @@ export const layerBasedProcessing = (imageData: ImageData, layers: LayerConfig[]
       const originalR = data[i];
       const originalG = data[i + 1];
       const originalB = data[i + 2];
-      const a = data[i + 3];
 
       const gray = Math.round(0.299 * originalR + 0.587 * originalG + 0.114 * originalB);
 
@@ -457,11 +456,6 @@ export const atkinsonDither = (imageData: ImageData, layers: LayerConfig[], prev
       const targetValue = selectedLayer.threshold || 128;
       const error = oldGray - targetValue;
 
-      // Apply layer styling
-      const originalR = data[idx];
-      const originalG = data[idx + 1];
-      const originalB = data[idx + 2];
-
       // Start with transparent base
       let currentR = 0;
       let currentG = 0;
@@ -595,11 +589,6 @@ export const applyErrorDiffusion = (
 
       const targetValue = selectedLayer.threshold || 128;
       const error = oldGray - targetValue;
-
-      // Apply layer styling
-      const originalR = data[idx];
-      const originalG = data[idx + 1];
-      const originalB = data[idx + 2];
 
       // Start with transparent base
       let currentR = 0;

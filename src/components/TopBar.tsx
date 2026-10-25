@@ -64,9 +64,8 @@ export function TopBar({
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
-                    console.log('File input changed', e.target.files);
-                    handleImageUpload(e);
-                }}
+                handleImageUpload(e);
+            }}
                 ref={fileInputRef}
                 className="hidden"
                 disabled={isProcessing}

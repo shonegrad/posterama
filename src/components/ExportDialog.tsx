@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import {
     Dialog,
@@ -133,7 +133,7 @@ export function ExportDialog({
                         <Label htmlFor="format" className="text-right text-sm">
                             Format
                         </Label>
-                        <Select value={format} onValueChange={(v: any) => setFormat(v)}>
+                        <Select value={format} onValueChange={(v: string) => setFormat(v as 'png' | 'jpeg' | 'webp')}>
                             <SelectTrigger className="col-span-3 h-8 text-sm">
                                 <SelectValue placeholder="Select format" />
                             </SelectTrigger>

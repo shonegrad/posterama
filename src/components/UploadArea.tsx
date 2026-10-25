@@ -1,6 +1,6 @@
 import { Button } from './ui/button';
 import { Alert, AlertDescription } from './ui/alert';
-import { Upload, MousePointer2, Copy, Loader2, AlertCircle } from 'lucide-react';
+import { Upload, MousePointer2, Loader2, AlertCircle } from 'lucide-react';
 
 interface UploadAreaProps {
   dropZoneRef: React.RefObject<HTMLDivElement>;

@@ -1,27 +1,9 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import {
-  DialogTitle,
-} from './ui/dialog';
-import { Button } from './ui/button';
-import { Card } from './ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 // Import components and hooks
 import { LayerControls } from './LayerControls';
 import { ControlsPanel } from './ControlsPanel';
-import { ExportDialog, ExportOptions } from './ExportDialog';
 import { PreviewArea } from './PreviewArea';
-import { UploadArea } from './UploadArea';
-import { SkeletonControlsPanel } from './SkeletonControlsPanel';
-import { SkeletonLayerControls } from './SkeletonLayerControls';
 import { SkeletonPreviewArea } from './SkeletonPreviewArea';
 import { TopBar } from './TopBar';
 import { Footer } from './Footer';
@@ -77,7 +59,6 @@ export function ImageProcessor() {
     setSelectedLayer,
     setLayers,
     setAlgorithm,
-    setShowPreview,
     setError,
     updateStatus,
     processImageFile,
@@ -381,8 +362,8 @@ export function ImageProcessor() {
       return newLayers;
     });
 
-    const layerName = index === layers.length - 1 ? 'Background' : `Layer ${index + 1} `;
-    updateStatus(`Updated ${layerName} ${field} `);
+    const layerName = index === layers.length - 1 ? 'Background' : `Layer ${index + 1}`;
+    updateStatus(`Updated ${layerName} ${field}`);
   }, [setLayers, updateStatus]);
 
   const toggleLayerCollapse = (index: number) => {
@@ -394,19 +375,6 @@ export function ImageProcessor() {
       setSelectedLayer(index);
     }
   };
-
-  const handleLayerColorClick = useCallback((index: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setSelectedLayer(index);
-
-    if (layers[index].collapsed) {
-      const newLayers = [...layers];
-      newLayers[index] = { ...newLayers[index], collapsed: false };
-      setLayers(newLayers);
-    }
-
-    updateStatus(`Selected ${index === layers.length - 1 ? 'Background' : `Layer ${index + 1}`} `);
-  }, [layers, setLayers, setSelectedLayer, updateStatus]);
 
   const applyPreset = useCallback((presetName: keyof typeof COLOR_PRESETS) => {
     // Clear any pending processing to prevent race conditions
@@ -442,9 +410,8 @@ export function ImageProcessor() {
 
   const getLayerName = (index: number): string => {
     if (index === layers.length - 1) return 'Background';
-    return `Layer ${index + 1} `;
+    return `Layer ${index + 1}`;
   };
-
   const generateSmartFilename = () => {
     const timestamp = Date.now().toString().slice(-6);
     const algorithmShort = {
@@ -633,20 +600,6 @@ export function ImageProcessor() {
     };
   }, []);
 
-  // Helper function to get default status message
-  const getDefaultStatusMessage = () => {
-    if (!originalImage) {
-      return 'Ready to process images';
-    }
-    if (isZoomMode) {
-      return 'Click to zoom in';
-    }
-    if (isPanMode) {
-      return 'Drag to pan around image';
-    }
-    return 'Image loaded and ready';
-  };
-
   return (
     <div
       className={`h-screen flex flex-col overflow-hidden surface-container-lowest ${isDragOver ? 'bg-primary/5' : ''}`}
@@ -766,14 +719,10 @@ export function ImageProcessor() {
                 <LayerControls
                   layers={layers}
                   selectedLayer={selectedLayer}
-                  showPreview={showPreview}
                   onLayerUpdate={updateLayer}
                   onLayerSelect={setSelectedLayer}
                   onLayerCollapse={toggleLayerCollapse}
-                  onLayerColorClick={handleLayerColorClick}
                   onResetLayers={resetLayers}
-                  onTogglePreview={() => setShowPreview(!showPreview)}
-                  generateSmartFilename={generateSmartFilename}
                   isOptimized={isOptimized}
                   onAddLayer={addLayer}
                   onDeleteLayer={deleteLayer}

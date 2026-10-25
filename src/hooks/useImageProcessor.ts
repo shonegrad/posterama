@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
-import { LayerConfig, ThresholdAlgorithm, ColorSwatch, DEFAULT_LAYERS, COLOR_PRESETS, IMAGE_SCALE_DEFAULT } from '../lib/constants';
+import { LayerConfig, ThresholdAlgorithm, ColorSwatch, DEFAULT_LAYERS } from '../lib/constants';
 import { createLayersWithExtractedColors, resizeImageForPreview, extractImageColors } from '../lib/imageUtils';
 import { ALGORITHM_INFO } from '../lib/constants';
 import {
@@ -16,14 +16,6 @@ import {
   falseFloydSteinbergDither,
   sierraLiteDither
 } from '../lib/imageProcessing';
-import {
-  canvasPool,
-  extractImageData,
-  renderToCanvas,
-  DebouncedProcessor,
-
-  perfMonitor
-} from '../lib/renderOptimization';
 import { useProcessingWorker } from './useProcessingWorker';
 import { useHistory } from './useHistory';
 
@@ -53,8 +45,6 @@ export function useImageProcessor() {
   const [processingStatus, setProcessingStatus] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState<boolean>(true);
-  const [presetSectionCollapsed, setPresetSectionCollapsed] = useState<boolean>(false);
-  const [lastZoomThreshold, setLastZoomThreshold] = useState<number>(1);
   const [previewScaleRatio, setPreviewScaleRatio] = useState<number>(1);
 
 
@@ -75,10 +65,7 @@ export function useImageProcessor() {
   // Memoized status updates for better performance
   const updateStatus = useCallback((status: string) => {
     setProcessingStatus(status);
-    console.log('Status:', status);
   }, []);
-
-  // Clear image function - only clears image data, preserves settings
 
   // Clear image function - only clears image data, preserves settings
   const clearImage = useCallback(() => {
@@ -110,7 +97,6 @@ export function useImageProcessor() {
     setIsProcessing(false);
     setProcessingStatus('');
     setError(null);
-    setLastZoomThreshold(1);
     setPreviewScaleRatio(1);
 
     // Keep layers, algorithm, showPreview, selectedLayer, and other settings
@@ -146,8 +132,6 @@ export function useImageProcessor() {
 
   // Image processing pipeline with auto-color assignment
   const processImageFile = useCallback(async (file: File, fileName?: string) => {
-    console.log('Processing file:', file.name, file.type, file.size);
-
     if (!file.type.startsWith('image/')) {
       setError('Please select a valid image file (JPEG, PNG, WebP, etc.)');
       return;
@@ -182,8 +166,6 @@ export function useImageProcessor() {
         image.src = fileResult;
       });
 
-      console.log('Image loaded:', img.width, 'x', img.height);
-
       updateStatus('Processing image...');
       setOriginalImage(img);
 
@@ -200,7 +182,6 @@ export function useImageProcessor() {
       // Calculate scale based on resolution mode
       const targetScale = 1.0;
       const { image: previewImg, scaleRatio } = await resizeImageForPreview(img, targetScale);
-      console.log('Preview image created:', previewImg.width, 'x', previewImg.height, 'Scale ratio:', scaleRatio);
 
       setPreviewImage(previewImg);
       setPreviewScaleRatio(scaleRatio);
@@ -827,8 +808,6 @@ export function useImageProcessor() {
     processingStatus,
     error,
     showPreview,
-    presetSectionCollapsed,
-    lastZoomThreshold,
     previewScaleRatio,
 
     // Refs
@@ -841,7 +820,6 @@ export function useImageProcessor() {
     setLayers,
     setAlgorithm,
     setShowPreview,
-    setPresetSectionCollapsed,
     setError,
 
     // Functions

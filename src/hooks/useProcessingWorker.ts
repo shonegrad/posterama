@@ -20,9 +20,7 @@ export function useProcessingWorker() {
   useEffect(() => {
     try {
       // Instantiate the imported worker
-      console.log('Using worker from import:', ImageWorker);
       workerRef.current = new ImageWorker();
-      console.log('Worker instantiated successfully');
       setIsReady(true);
 
       if (workerRef.current) {

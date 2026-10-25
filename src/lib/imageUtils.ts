@@ -1,4 +1,4 @@
-import { ColorSwatch, LayerConfig, DEFAULT_LAYERS, MAX_PREVIEW_SIZE, MAX_PROCESSING_SIZE } from './constants';
+import { ColorSwatch, LayerConfig, DEFAULT_LAYERS, MAX_PREVIEW_SIZE } from './constants';
 
 // Function to create layers with extracted colors
 // Function to create layers with extracted colors

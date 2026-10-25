@@ -5,20 +5,15 @@ import { Slider } from './ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Toggle } from './ui/toggle';
 import { RotateCcw, Eye, EyeOff, ChevronDown, ChevronUp, Trash2, Grid3x3, ArrowUp, ArrowDown } from 'lucide-react';
-import { Switch } from './ui/switch';
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface LayerControlsProps {
   layers: LayerConfig[];
   selectedLayer: number;
-  showPreview: boolean;
   onLayerUpdate: (index: number, field: keyof LayerConfig, value: number | string | boolean) => void;
   onLayerSelect: (index: number) => void;
   onLayerCollapse: (index: number) => void;
-  onLayerColorClick: (index: number, e: React.MouseEvent) => void;
   onResetLayers: () => void;
-  onTogglePreview: () => void;
-  generateSmartFilename: () => string;
   isOptimized: boolean;
   onAddLayer: () => void;
   onDeleteLayer: (index: number) => void;
@@ -28,34 +23,21 @@ interface LayerControlsProps {
 export function LayerControls({
   layers,
   selectedLayer,
-  showPreview,
   onLayerUpdate,
   onLayerSelect,
   onLayerCollapse,
-  onLayerColorClick,
   onResetLayers,
-  onTogglePreview,
-  generateSmartFilename,
   isOptimized,
   onAddLayer,
   onDeleteLayer,
   onReorderLayer
 }: LayerControlsProps) {
-  const colorPickerRefs = useRef<(HTMLInputElement | null)[]>([]);
-
   // Temporary states for immediate UI updates
   const [tempThresholds, setTempThresholds] = useState<{ [key: number]: number }>({});
   const [tempOpacities, setTempOpacities] = useState<{ [key: number]: number }>({});
-  const [tempColors, setTempColors] = useState<{ [key: number]: string }>({});
   const [tempPatternSizes, setTempPatternSizes] = useState<{ [key: number]: number }>({});
   const [tempPatternRotations, setTempPatternRotations] = useState<{ [key: number]: number }>({});
-  const [tempPatternFgColors, setTempPatternFgColors] = useState<{ [key: number]: string }>({});
-  const [tempPatternBgColors, setTempPatternBgColors] = useState<{ [key: number]: string }>({});
   const [tempPatternSpacings, setTempPatternSpacings] = useState<{ [key: number]: number }>({});
-
-  // Track drag state for color pickers
-  const [isDragging, setIsDragging] = useState(false);
-  const mouseDownPosRef = useRef<{ x: number; y: number } | null>(null);
 
   // Debounce timers
   const debounceTimersRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
@@ -98,22 +80,16 @@ export function LayerControls({
   }, [onLayerUpdate]);
 
   // Get display value (temp value if exists, otherwise actual value)
-  const getDisplayValue = (index: number, field: string, actualValue: any) => {
+  const getDisplayValue = (index: number, field: string, actualValue: number) => {
     switch (field) {
       case 'threshold':
         return tempThresholds[index] !== undefined ? tempThresholds[index] : actualValue;
       case 'opacity':
         return tempOpacities[index] !== undefined ? tempOpacities[index] : actualValue;
-      case 'color':
-        return tempColors[index] !== undefined ? tempColors[index] : actualValue;
       case 'patternSize':
         return tempPatternSizes[index] !== undefined ? tempPatternSizes[index] : actualValue;
       case 'patternRotation':
         return tempPatternRotations[index] !== undefined ? tempPatternRotations[index] : actualValue;
-      case 'patternForegroundColor':
-        return tempPatternFgColors[index] !== undefined ? tempPatternFgColors[index] : actualValue;
-      case 'patternBackgroundColor':
-        return tempPatternBgColors[index] !== undefined ? tempPatternBgColors[index] : actualValue;
       case 'patternSpacing':
         return tempPatternSpacings[index] !== undefined ? tempPatternSpacings[index] : actualValue;
       default:
@@ -132,11 +108,6 @@ export function LayerControls({
     debouncedUpdate(index, 'opacity', value);
   }, [debouncedUpdate]);
 
-  const handleColorChange = useCallback((index: number, value: string) => {
-    setTempColors(prev => ({ ...prev, [index]: value }));
-    debouncedUpdate(index, 'color', value, 100); // Shorter delay for colors
-  }, [debouncedUpdate]);
-
   const handlePatternSizeChange = useCallback((index: number, value: number) => {
     setTempPatternSizes(prev => ({ ...prev, [index]: value }));
     debouncedUpdate(index, 'patternSize', value);
@@ -152,30 +123,14 @@ export function LayerControls({
     debouncedUpdate(index, 'patternRotation', value);
   }, [debouncedUpdate]);
 
-  const handlePatternFgColorChange = useCallback((index: number, value: string) => {
-    setTempPatternFgColors(prev => ({ ...prev, [index]: value }));
-    debouncedUpdate(index, 'patternForegroundColor', value, 100);
-  }, [debouncedUpdate]);
-
-  const handlePatternBgColorChange = useCallback((index: number, value: string) => {
-    setTempPatternBgColors(prev => ({ ...prev, [index]: value }));
-    debouncedUpdate(index, 'patternBackgroundColor', value, 100);
-  }, [debouncedUpdate]);
-
-  // Note: Native color pickers handle their own closing behavior automatically
-  // No manual close handling needed
-
   // Clear temporary states when layers change externally (like presets)
   useEffect(() => {
     // Use requestAnimationFrame to clear temp states smoothly
     requestAnimationFrame(() => {
       setTempThresholds({});
       setTempOpacities({});
-      setTempColors({});
       setTempPatternSizes({});
       setTempPatternRotations({});
-      setTempPatternFgColors({});
-      setTempPatternBgColors({});
       setTempPatternSpacings({});
     });
   }, [layers]);
@@ -189,54 +144,6 @@ export function LayerControls({
     };
   }, []);
 
-  const handleLayerColorClick = (index: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    onLayerColorClick(index, e);
-
-    // Only open color picker if not dragging
-    if (!isDragging) {
-      // Focus the color picker to open it
-      const colorPicker = colorPickerRefs.current[index];
-      if (colorPicker) {
-        colorPicker.focus();
-        colorPicker.click();
-      }
-    }
-  };
-
-  // Track mouse position to detect dragging
-  const handleColorMouseDown = (e: React.MouseEvent) => {
-    mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
-    setIsDragging(false);
-  };
-
-  const handleColorMouseMove = (e: React.MouseEvent) => {
-    if (mouseDownPosRef.current) {
-      const dx = e.clientX - mouseDownPosRef.current.x;
-      const dy = e.clientY - mouseDownPosRef.current.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      // If moved more than 5 pixels, consider it a drag
-      if (distance > 5) {
-        setIsDragging(true);
-      }
-    }
-  };
-
-  const handleColorMouseUp = () => {
-    mouseDownPosRef.current = null;
-    // Reset dragging state after a short delay
-    setTimeout(() => setIsDragging(false), 100);
-  };
-
-  // Helper for pattern color clicks
-  const handlePatternColorClick = (inputId: string) => {
-    if (!isDragging) {
-      const input = document.getElementById(inputId) as HTMLInputElement;
-      if (input) input.click();
-    }
-  };
-
   return (
     <div className="p-4">
       <div className="mb-4 space-y-3">
@@ -249,7 +156,7 @@ export function LayerControls({
             onClick={onAddLayer}
             variant="outline"
             size="sm"
-            className="flex items-center gap-1 elevation-1 border-0 surface-container-high hover:bg-surface-container-highest transition-colors hover:surface-container-high hover:bg-surface-container-highest transition-colorsest text-sm h-6 px-2"
+            className="flex items-center gap-1 elevation-1 border-0 surface-container-high hover:bg-surface-container-highest transition-colors hover:surface-container-high hover:bg-surface-container-highest transition-colors text-sm h-6 px-2"
             title="Add a new layer"
             aria-label="Add a new layer"
           >
@@ -260,7 +167,7 @@ export function LayerControls({
             onClick={onResetLayers}
             variant="outline"
             size="sm"
-            className="flex items-center gap-1 elevation-1 border-0 surface-container-high hover:bg-surface-container-highest transition-colors hover:surface-container-high hover:bg-surface-container-highest transition-colorsest text-sm h-6 px-2"
+            className="flex items-center gap-1 elevation-1 border-0 surface-container-high hover:bg-surface-container-highest transition-colors hover:surface-container-high hover:bg-surface-container-highest transition-colors text-sm h-6 px-2"
             title="Reset layers to default (Ctrl+R)"
             aria-label="Reset layers to default"
           >
@@ -280,7 +187,7 @@ export function LayerControls({
             <div
               key={`layer-${index}`}
               className={`rounded transition-all duration-200 ease-out ${selectedLayer === index
-                ? 'elevation-3 border-2 border-primary/40 surface-container-high hover:bg-surface-container-highest transition-colorsest ring-2 ring-primary/30'
+                ? 'elevation-3 border-2 border-primary/40 surface-container-high hover:bg-surface-container-highest transition-colors ring-2 ring-primary/30'
                 : 'elevation-2 border border-border surface-container hover:elevation-4 hover:surface-container-high hover:bg-surface-container-highest transition-colors hover:scale-[1.008] hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-primary/20'
                 }`}
             >
@@ -402,7 +309,7 @@ export function LayerControls({
                         </div>
                         <Select
                           value={layer.blendMode}
-                          onValueChange={(value: any) => onLayerUpdate(index, 'blendMode', value)}
+                          onValueChange={(value: string) => onLayerUpdate(index, 'blendMode', value as LayerConfig['blendMode'])}
                         >
                           <SelectTrigger className="h-7 text-sm w-full elevation-1 border-0 surface-container-high hover:bg-surface-container-highest transition-colors">
                             <SelectValue />
@@ -431,12 +338,12 @@ export function LayerControls({
                         <div className="flex justify-between items-center">
                           <Label className="text-sm font-medium font-mono">Threshold</Label>
                           <span className="text-xs text-muted-foreground font-mono">
-                            {getDisplayValue(index, 'threshold', layer.threshold)}
+                            {getDisplayValue(index, 'threshold', layer.threshold ?? 128)}
                           </span>
                         </div>
                         <Slider
-                          value={[getDisplayValue(index, 'threshold', layer.threshold) || 128]}
-                          onValueChange={(value) => handleThresholdChange(index, value[0])}
+                          value={[getDisplayValue(index, 'threshold', layer.threshold ?? 128) || 128]}
+                          onValueChange={(value) => handleThresholdChange(index, value[0] ?? 128)}
                           max={255}
                           min={0}
                           step={1}
@@ -450,12 +357,12 @@ export function LayerControls({
                       <div className="flex justify-between items-center">
                         <Label className="text-sm font-medium font-mono">Opacity</Label>
                         <span className="text-xs text-muted-foreground font-mono">
-                          {getDisplayValue(index, 'opacity', layer.opacity)}%
+                          {getDisplayValue(index, 'opacity', layer.opacity ?? 100)}%
                         </span>
                       </div>
                       <Slider
-                        value={[getDisplayValue(index, 'opacity', layer.opacity)]}
-                        onValueChange={(value) => handleOpacityChange(index, value[0])}
+                        value={[getDisplayValue(index, 'opacity', layer.opacity ?? 100)]}
+                        onValueChange={(value) => handleOpacityChange(index, value[0] ?? 100)}
                         max={100}
                         min={0}
                         step={1}
@@ -488,7 +395,7 @@ export function LayerControls({
                           <SelectTrigger className="elevation-1 border-0 h-7 surface-container-high hover:bg-surface-container-highest transition-colors text-sm text-center">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="surface-container-high hover:bg-surface-container-highest transition-colorsest elevation-3 border-0">
+                          <SelectContent className="surface-container-high hover:bg-surface-container-highest transition-colors elevation-3 border-0">
                             <SelectItem value="halftone">Halftone Dots</SelectItem>
                             <SelectItem value="screentone">Screentone Lines</SelectItem>
                             <SelectItem value="dots">Simple Dots</SelectItem>
@@ -519,7 +426,7 @@ export function LayerControls({
                           </div>
                           <Slider
                             value={[getDisplayValue(index, 'patternSize', layer.patternSize)]}
-                            onValueChange={(value) => handlePatternSizeChange(index, value[0])}
+                            onValueChange={(value) => handlePatternSizeChange(index, value[0] ?? layer.patternSize)}
                             max={200}
                             min={2}
                             step={1}
@@ -537,7 +444,7 @@ export function LayerControls({
                           </div>
                           <Slider
                             value={[getDisplayValue(index, 'patternSpacing', layer.patternSpacing || 0)]}
-                            onValueChange={(value) => handlePatternSpacingChange(index, value[0])}
+                            onValueChange={(value) => handlePatternSpacingChange(index, value[0] ?? (layer.patternSpacing || 0))}
                             max={50}
                             min={0}
                             step={1}
@@ -555,7 +462,7 @@ export function LayerControls({
                           </div>
                           <Slider
                             value={[getDisplayValue(index, 'patternRotation', layer.patternRotation)]}
-                            onValueChange={(value) => handlePatternRotationChange(index, value[0])}
+                            onValueChange={(value) => handlePatternRotationChange(index, value[0] ?? layer.patternRotation)}
                             max={360}
                             min={0}
                             step={1}
