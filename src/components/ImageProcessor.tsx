@@ -13,6 +13,7 @@ import { useUserPresets } from '../hooks/useUserPresets';
 
 // Import constants
 import { LayerConfig, COLOR_PRESETS, DEFAULT_LAYERS, ZOOM_MIN, ZOOM_MAX } from '../lib/constants';
+import { buildSmartFilename } from '../lib/filenames';
 
 export function ImageProcessor() {
   // Dark mode state
@@ -92,9 +93,10 @@ export function ImageProcessor() {
   // Track previous tool state for spring-loaded shortcuts (Spacebar)
   const previousToolRef = useRef<{ isZoom: boolean; isPan: boolean } | null>(null);
 
-  // Refs for preventing infinite loops
   // Refs for preventing infinite loops and measuring container
-  const processingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // previewDebounceRef debounces reprocessing triggered by the effect below;
+  // useImageProcessor owns its own independent processingTimeoutRef.
+  const previewDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const lastProcessingParamsRef = useRef<string>('');
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
@@ -378,9 +380,9 @@ export function ImageProcessor() {
 
   const applyPreset = useCallback((presetName: keyof typeof COLOR_PRESETS) => {
     // Clear any pending processing to prevent race conditions
-    if (processingTimeoutRef.current) {
-      clearTimeout(processingTimeoutRef.current);
-      processingTimeoutRef.current = null;
+    if (previewDebounceRef.current) {
+      clearTimeout(previewDebounceRef.current);
+      previewDebounceRef.current = null;
     }
 
     // Clear the processing params ref to ensure fresh processing
@@ -394,9 +396,9 @@ export function ImageProcessor() {
 
   const resetLayers = useCallback(() => {
     // Clear any pending processing to prevent race conditions
-    if (processingTimeoutRef.current) {
-      clearTimeout(processingTimeoutRef.current);
-      processingTimeoutRef.current = null;
+    if (previewDebounceRef.current) {
+      clearTimeout(previewDebounceRef.current);
+      previewDebounceRef.current = null;
     }
 
     // Clear the processing params ref to ensure fresh processing
@@ -412,25 +414,9 @@ export function ImageProcessor() {
     if (index === layers.length - 1) return 'Background';
     return `Layer ${index + 1}`;
   };
-  const generateSmartFilename = () => {
-    const timestamp = Date.now().toString().slice(-6);
-    const algorithmShort = {
-      'simple': 'simple',
-      'floyd-steinberg': 'floyd',
-      'ordered-dither': 'ordered',
-      'atkinson': 'atkinson',
-      'jarvis-judice-ninke': 'jarvis',
-      'sierra': 'sierra',
-      'burkes': 'burkes',
-      'stucki': 'stucki',
-      'riemersma': 'riemersma',
-      'false-floyd-steinberg': 'false-floyd',
-      'sierra-lite': 'sierra-lite'
-    }[algorithm];
-
-    const fileName = originalImage ? 'image' : 'image';
-    return `${fileName} -${algorithmShort} -${timestamp} `;
-  };
+  const generateSmartFilename = useCallback(() => {
+    return buildSmartFilename(originalFileName, algorithm);
+  }, [originalFileName, algorithm]);
 
 
 
@@ -565,14 +551,14 @@ export function ImageProcessor() {
     }
 
     // Clear any existing timeout
-    if (processingTimeoutRef.current) {
-      clearTimeout(processingTimeoutRef.current);
+    if (previewDebounceRef.current) {
+      clearTimeout(previewDebounceRef.current);
     }
 
     // Use short delay for responsive updates
     const delay = 150;
 
-    processingTimeoutRef.current = setTimeout(() => {
+    previewDebounceRef.current = setTimeout(() => {
       // Double-check that we should still process
       if (!previewImage || !showPreview || isProcessing) {
         return;
@@ -585,8 +571,8 @@ export function ImageProcessor() {
     }, delay);
 
     return () => {
-      if (processingTimeoutRef.current) {
-        clearTimeout(processingTimeoutRef.current);
+      if (previewDebounceRef.current) {
+        clearTimeout(previewDebounceRef.current);
       }
     };
   }, [previewImage, showPreview, layers, algorithm, processImageOnCanvas, isProcessing]);
@@ -594,8 +580,8 @@ export function ImageProcessor() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (processingTimeoutRef.current) {
-        clearTimeout(processingTimeoutRef.current);
+      if (previewDebounceRef.current) {
+        clearTimeout(previewDebounceRef.current);
       }
     };
   }, []);

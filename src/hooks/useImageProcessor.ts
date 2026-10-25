@@ -1,21 +1,10 @@
 import { useState, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
-import { LayerConfig, ThresholdAlgorithm, ColorSwatch, DEFAULT_LAYERS } from '../lib/constants';
+import { LayerConfig, ThresholdAlgorithm, ColorSwatch, DEFAULT_LAYERS, MAX_PROCESSING_SIZE } from '../lib/constants';
 import { createLayersWithExtractedColors, resizeImageForPreview, extractImageColors } from '../lib/imageUtils';
 import { ALGORITHM_INFO } from '../lib/constants';
-import {
-  layerBasedProcessing,
-  floydSteinbergDither,
-  orderedDither,
-  atkinsonDither,
-  jarvisJudiceNinkeDither,
-  sierraDither,
-  burkesDither,
-  stuckiDither,
-  riemersmaDither,
-  falseFloydSteinbergDither,
-  sierraLiteDither
-} from '../lib/imageProcessing';
+import { applyAlgorithm } from '../lib/algorithmDispatch';
+import { buildSmartFilename } from '../lib/filenames';
 import { useProcessingWorker } from './useProcessingWorker';
 import { useHistory } from './useHistory';
 
@@ -320,7 +309,7 @@ export function useImageProcessor() {
           if (!canvas || !ctx || isProcessing) return;
 
           // Limit maximum image size for performance
-          const maxSize = 1200; // Maximum width or height for processing
+          const maxSize = MAX_PROCESSING_SIZE;
           let targetWidth = img.width;
           let targetHeight = img.height;
 
@@ -391,43 +380,7 @@ export function useImageProcessor() {
             // Synchronous fallback (legacy code)
             try {
               const imageData = offscreenCtx.getImageData(0, 0, targetWidth, targetHeight);
-              let processedData: ImageData;
-
-              // Process synchronously for instant results
-              switch (algorithm) {
-                case 'floyd-steinberg':
-                  processedData = floydSteinbergDither(imageData, layers, previewScaleRatio);
-                  break;
-                case 'ordered-dither':
-                  processedData = orderedDither(imageData, layers, previewScaleRatio);
-                  break;
-                case 'atkinson':
-                  processedData = atkinsonDither(imageData, layers, previewScaleRatio);
-                  break;
-                case 'jarvis-judice-ninke':
-                  processedData = jarvisJudiceNinkeDither(imageData, layers, previewScaleRatio);
-                  break;
-                case 'sierra':
-                  processedData = sierraDither(imageData, layers, previewScaleRatio);
-                  break;
-                case 'burkes':
-                  processedData = burkesDither(imageData, layers, previewScaleRatio);
-                  break;
-                case 'stucki':
-                  processedData = stuckiDither(imageData, layers, previewScaleRatio);
-                  break;
-                case 'riemersma':
-                  processedData = riemersmaDither(imageData, layers, previewScaleRatio);
-                  break;
-                case 'false-floyd-steinberg':
-                  processedData = falseFloydSteinbergDither(imageData, layers, previewScaleRatio);
-                  break;
-                case 'sierra-lite':
-                  processedData = sierraLiteDither(imageData, layers, previewScaleRatio);
-                  break;
-                default:
-                  processedData = layerBasedProcessing(imageData, layers, previewScaleRatio);
-              }
+              const processedData = applyAlgorithm(algorithm, imageData, layers, previewScaleRatio);
 
               // Only now update the visible canvas with processed result
               requestAnimationFrame(() => {
@@ -523,64 +476,13 @@ export function useImageProcessor() {
         tempCtx.drawImage(originalImage, 0, 0, originalImage.width, originalImage.height);
 
         const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-        let processedData: ImageData;
 
         const fullResScaleRatio = 1;
-
-        switch (algorithm) {
-          case 'floyd-steinberg':
-            processedData = floydSteinbergDither(imageData, layers, fullResScaleRatio);
-            break;
-          case 'ordered-dither':
-            processedData = orderedDither(imageData, layers, fullResScaleRatio);
-            break;
-          case 'atkinson':
-            processedData = atkinsonDither(imageData, layers, fullResScaleRatio);
-            break;
-          case 'jarvis-judice-ninke':
-            processedData = jarvisJudiceNinkeDither(imageData, layers, fullResScaleRatio);
-            break;
-          case 'sierra':
-            processedData = sierraDither(imageData, layers, fullResScaleRatio);
-            break;
-          case 'burkes':
-            processedData = burkesDither(imageData, layers, fullResScaleRatio);
-            break;
-          case 'stucki':
-            processedData = stuckiDither(imageData, layers, fullResScaleRatio);
-            break;
-          case 'riemersma':
-            processedData = riemersmaDither(imageData, layers, fullResScaleRatio);
-            break;
-          case 'false-floyd-steinberg':
-            processedData = falseFloydSteinbergDither(imageData, layers, fullResScaleRatio);
-            break;
-          case 'sierra-lite':
-            processedData = sierraLiteDither(imageData, layers, fullResScaleRatio);
-            break;
-          default:
-            processedData = layerBasedProcessing(imageData, layers, fullResScaleRatio);
-        }
+        const processedData = applyAlgorithm(algorithm, imageData, layers, fullResScaleRatio);
 
         tempCtx.putImageData(processedData, 0, 0);
 
-        const timestamp = Date.now().toString().slice(-6);
-        const algorithmShort = {
-          'simple': 'simple',
-          'floyd-steinberg': 'floyd',
-          'ordered-dither': 'ordered',
-          'atkinson': 'atkinson',
-          'jarvis-judice-ninke': 'jarvis',
-          'sierra': 'sierra',
-          'burkes': 'burkes',
-          'stucki': 'stucki',
-          'riemersma': 'riemersma',
-          'false-floyd-steinberg': 'false-floyd',
-          'sierra-lite': 'sierra-lite'
-        }[algorithm];
-
-        const fileName = originalFileName || 'image';
-        const smartFilename = `${fileName}-${algorithmShort}-${timestamp}`;
+        const smartFilename = buildSmartFilename(originalFileName, algorithm);
 
 
         // Use toBlob for download (works in Firefox)
@@ -692,41 +594,7 @@ export function useImageProcessor() {
           } else {
             // Fallback for no worker
             try {
-              let processedData: ImageData;
-              switch (algorithm) {
-                case 'floyd-steinberg':
-                  processedData = floydSteinbergDither(imageData, layers, 1);
-                  break;
-                case 'ordered-dither':
-                  processedData = orderedDither(imageData, layers, 1);
-                  break;
-                case 'atkinson':
-                  processedData = atkinsonDither(imageData, layers, 1);
-                  break;
-                case 'jarvis-judice-ninke':
-                  processedData = jarvisJudiceNinkeDither(imageData, layers, 1);
-                  break;
-                case 'sierra':
-                  processedData = sierraDither(imageData, layers, 1);
-                  break;
-                case 'burkes':
-                  processedData = burkesDither(imageData, layers, 1);
-                  break;
-                case 'stucki':
-                  processedData = stuckiDither(imageData, layers, 1);
-                  break;
-                case 'riemersma':
-                  processedData = riemersmaDither(imageData, layers, 1);
-                  break;
-                case 'false-floyd-steinberg':
-                  processedData = falseFloydSteinbergDither(imageData, layers, 1);
-                  break;
-                case 'sierra-lite':
-                  processedData = sierraLiteDither(imageData, layers, 1);
-                  break;
-                default:
-                  processedData = layerBasedProcessing(imageData, layers, 1);
-              }
+              const processedData = applyAlgorithm(algorithm, imageData, layers, 1);
               resolve(processedData);
             } catch (e) {
               reject(e);
