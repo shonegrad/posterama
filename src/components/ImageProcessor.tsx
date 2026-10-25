@@ -186,26 +186,6 @@ export function ImageProcessor() {
   //   }
   // }, [originalImage, fitToScreen]);
 
-  // TODO: Remove this in production - Auto-load test image for development
-  useEffect(() => {
-    // Only load test image if no image is currently loaded
-    if (!originalImage) {
-      // Load the test image from public folder
-      const img = new Image();
-      img.onload = () => {
-        // Convert to blob and load as file
-        fetch('/test-image.jpg')
-          .then(res => res.blob())
-          .then(blob => {
-            const file = new File([blob], 'test-image.jpg', { type: 'image/jpeg' });
-            processImageFile(file);
-          })
-          .catch(err => console.error('Error loading test image:', err));
-      };
-      img.src = '/test-image.jpg';
-    }
-  }, []); // Empty deps - only run once on mount
-
   // Clear image handler that also resets view state
   const handleClearImage = useCallback(() => {
     // Clear the image using the hook function

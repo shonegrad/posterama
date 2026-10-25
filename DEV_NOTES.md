@@ -1,26 +1,11 @@
 # Development Notes
 
-## Temporary Test Image Auto-Load
+## Test Image Auto-Load (REMOVED)
 
-**Status**: ACTIVE (for development/testing only)  
-**Location**: `src/components/ImageProcessor.tsx` (lines ~202-242)
-
-### What it does:
-- Automatically loads a colorful gradient test pattern on app startup
-- Generates an 800×600px image with gradient and shapes
-- Only loads if no image is currently present
-
-### TODO - Remove Before Production:
-```tsx
-// TODO: Remove this in production - Auto-load test image for development
-useEffect(() => {
-  // ... test image generation code ...
-}, []);
-```
-
-**When to remove**: Before final production build or when testing is complete.
-
-**How to remove**: Simply delete the entire `useEffect` block (marked with TODO comment).
+**Status**: REMOVED (2026-10-24)  
+The startup auto-load of `/test-image.jpg` (previously flagged
+"TODO: Remove this in production") has been deleted, along with
+`public/test-image.jpg`. The app now boots to the upload screen as intended.
 
 ---
 
