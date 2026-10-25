@@ -27,6 +27,7 @@ import { TopBar } from './TopBar';
 import { Footer } from './Footer';
 
 import { useImageProcessor } from '../hooks/useImageProcessor';
+import { useUserPresets } from '../hooks/useUserPresets';
 
 // Import constants
 import { LayerConfig, COLOR_PRESETS, DEFAULT_LAYERS, ZOOM_MIN, ZOOM_MAX } from '../lib/constants';
@@ -53,6 +54,9 @@ export function ImageProcessor() {
   const toggleDarkMode = useCallback(() => {
     setIsDarkMode(prev => !prev);
   }, []);
+
+  // User presets management
+  const userPresets = useUserPresets();
 
   const {
     originalImage,
@@ -666,6 +670,25 @@ export function ImageProcessor() {
         isExportDialogOpen={isExportDialogOpen}
         setIsExportDialogOpen={setIsExportDialogOpen}
         generateSmartFilename={generateSmartFilename}
+        userPresets={userPresets.presets}
+        onSavePreset={(name) => {
+          userPresets.savePreset(name, layers);
+          updateStatus(`Saved preset: ${name}`);
+        }}
+        onLoadPreset={(id) => {
+          const presetLayers = userPresets.loadPreset(id);
+          if (presetLayers) {
+            setLayers(presetLayers);
+            const preset = userPresets.presets.find(p => p.id === id);
+            updateStatus(`Loaded preset: ${preset?.name}`);
+          }
+        }}
+        onDeletePreset={(id) => {
+          const preset = userPresets.presets.find(p => p.id === id);
+          userPresets.deletePreset(id);
+          updateStatus(`Deleted preset: ${preset?.name}`);
+        }}
+        hasPresetWithName={userPresets.hasPresetWithName}
       />
 
       {/* Main Content Area */}

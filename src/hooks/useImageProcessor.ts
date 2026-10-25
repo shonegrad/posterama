@@ -612,11 +612,19 @@ export function useImageProcessor() {
 
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.download = `${smartFilename}.png`;
+            // Set download attribute BEFORE href to ensure download behavior
+            link.setAttribute('download', `${smartFilename}.png`);
             link.href = url;
+            link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
+
+            // Cleanup after a short delay to ensure download starts
+            setTimeout(() => {
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            }, 100);
+
             resolve();
           }, 'image/png');
         });
@@ -663,8 +671,12 @@ export function useImageProcessor() {
         const finalScale = scale * resScale;
 
         // Calculate dimensions
-        const targetWidth = Math.round(originalImage.width * finalScale);
-        const targetHeight = Math.round(originalImage.height * finalScale);
+        let targetWidth = Math.round(originalImage.width * finalScale);
+        let targetHeight = Math.round(originalImage.height * finalScale);
+
+        // Ensure dimensions are at least 1x1
+        targetWidth = Math.max(1, targetWidth);
+        targetHeight = Math.max(1, targetHeight);
 
         updateStatus(`Preparing image (${targetWidth}x${targetHeight})...`);
 
@@ -751,17 +763,25 @@ export function useImageProcessor() {
         await new Promise<void>((resolve, reject) => {
           tempCanvas.toBlob((blob) => {
             if (!blob) {
-              reject(new Error('Failed to create image blob'));
+              reject(new Error(`Failed to create ${format.toUpperCase()} blob. The canvas might be too large or the format unsupported.`));
               return;
             }
 
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.download = `${filename}.${format}`;
+            // Set download attribute BEFORE href to ensure download behavior
+            link.setAttribute('download', `${filename}.${format}`);
             link.href = url;
+            link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
+
+            // Cleanup after a short delay to ensure download starts
+            setTimeout(() => {
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            }, 100);
+
             resolve();
           }, mimeType, quality);
         });

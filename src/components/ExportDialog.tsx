@@ -53,13 +53,20 @@ export function ExportDialog({
     // Initialize filename when dialog opens
     useEffect(() => {
         if (isOpen) {
-            const nameWithoutExt = originalFilename.split('.').slice(0, -1).join('.') || 'image';
-            setFilename(nameWithoutExt);
+            // Remove extension if present, otherwise keep original name
+            const nameWithoutExt = originalFilename.lastIndexOf('.') > 0
+                ? originalFilename.substring(0, originalFilename.lastIndexOf('.'))
+                : originalFilename;
+            setFilename(nameWithoutExt || 'image');
         }
     }, [isOpen, originalFilename]);
 
     const handleExport = async () => {
-        const finalScale = scale === 'custom' ? customScale : parseFloat(scale);
+        let finalScale = scale === 'custom' ? customScale : parseFloat(scale);
+
+        if (isNaN(finalScale) || finalScale <= 0) {
+            finalScale = 1;
+        }
 
         await onExport({
             format,
@@ -193,7 +200,10 @@ export function ExportDialog({
                                     max="10"
                                     step="0.1"
                                     value={customScale}
-                                    onChange={(e) => setCustomScale(parseFloat(e.target.value))}
+                                    onChange={(e) => {
+                                        const val = parseFloat(e.target.value);
+                                        setCustomScale(isNaN(val) ? 1 : val);
+                                    }}
                                     className="flex-1 h-8 text-sm"
                                 />
                                 <span className="text-sm text-muted-foreground w-8">x</span>

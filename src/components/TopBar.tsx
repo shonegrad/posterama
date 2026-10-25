@@ -8,8 +8,10 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Upload, Download, Loader2, X, ChevronDown, Moon, Sun } from 'lucide-react';
+import { Upload, Download, Loader2, X, ChevronDown, Moon, Sun, Save, Trash2, FolderOpen } from 'lucide-react';
 import { ExportDialog, ExportOptions } from './ExportDialog';
+import { SavePresetDialog } from './SavePresetDialog';
+import { UserPreset } from '../hooks/useUserPresets';
 
 interface TopBarProps {
     isDarkMode: boolean;
@@ -26,6 +28,12 @@ interface TopBarProps {
     isExportDialogOpen: boolean;
     setIsExportDialogOpen: (isOpen: boolean) => void;
     generateSmartFilename: () => string;
+    // Preset props
+    userPresets: UserPreset[];
+    onSavePreset: (name: string) => void;
+    onLoadPreset: (id: string) => void;
+    onDeletePreset: (id: string) => void;
+    hasPresetWithName: (name: string) => boolean;
 }
 
 export function TopBar({
@@ -43,7 +51,13 @@ export function TopBar({
     isExportDialogOpen,
     setIsExportDialogOpen,
     generateSmartFilename,
+    userPresets,
+    onSavePreset,
+    onLoadPreset,
+    onDeletePreset,
+    hasPresetWithName,
 }: TopBarProps) {
+    const [isSavePresetDialogOpen, setIsSavePresetDialogOpen] = React.useState(false);
     return (
         <div className="flex-shrink-0 border-b border-border surface-container-high hover:bg-surface-container-highest transition-colors h-12 flex items-center px-4 justify-end gap-2">
             <input
@@ -62,7 +76,7 @@ export function TopBar({
                 onClick={toggleDarkMode}
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-full hover:bg-surface-container-high hover:bg-surface-container-highest transition-colorsest"
+                className="h-8 w-8 rounded-full hover:bg-surface-container-high hover:bg-surface-container-highest transition-colors"
                 title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
             >
                 {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -70,11 +84,75 @@ export function TopBar({
 
             <div className="h-4 w-px bg-border mx-1" />
 
+            {/* Presets Dropdown */}
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-sm gap-1 hover:bg-surface-container-high hover:bg-surface-container-highest transition-colors px-3"
+                    >
+                        <FolderOpen className="w-3 h-3" />
+                        <span className="hidden sm:inline">Presets</span>
+                        <ChevronDown className="h-2.5 w-2.5 opacity-70" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => setIsSavePresetDialogOpen(true)}>
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Current
+                    </DropdownMenuItem>
+                    {userPresets.length > 0 && (
+                        <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel>Your Presets</DropdownMenuLabel>
+                            {userPresets.map((preset) => (
+                                <DropdownMenuItem
+                                    key={preset.id}
+                                    className="flex items-center justify-between group"
+                                    onClick={() => onLoadPreset(preset.id)}
+                                >
+                                    <span className="truncate">{preset.name}</span>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDeletePreset(preset.id);
+                                        }}
+                                    >
+                                        <Trash2 className="w-3 h-3" />
+                                    </Button>
+                                </DropdownMenuItem>
+                            ))}
+                        </>
+                    )}
+                    {userPresets.length === 0 && (
+                        <>
+                            <DropdownMenuSeparator />
+                            <div className="px-2 py-2 text-sm text-muted-foreground text-center">
+                                No presets saved yet
+                            </div>
+                        </>
+                    )}
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            <SavePresetDialog
+                isOpen={isSavePresetDialogOpen}
+                onClose={() => setIsSavePresetDialogOpen(false)}
+                onSave={onSavePreset}
+                hasPresetWithName={hasPresetWithName}
+            />
+
+            <div className="h-4 w-px bg-border mx-1" />
+
             <Button
                 onClick={handleBrowseClick}
                 variant="ghost"
                 size="sm"
-                className="h-7 text-sm gap-1 hover:bg-surface-container-high hover:bg-surface-container-highest transition-colorsest px-3"
+                className="h-7 text-sm gap-1 hover:bg-surface-container-high hover:bg-surface-container-highest transition-colors px-3"
                 disabled={isProcessing}
             >
                 <Upload className="w-3 h-3" />
@@ -87,7 +165,7 @@ export function TopBar({
                         onClick={handleClearImage}
                         variant="ghost"
                         size="sm"
-                        className="h-7 text-sm gap-1 hover:bg-surface-container-high hover:bg-surface-container-highest transition-colorsest hover:text-destructive px-3"
+                        className="h-7 text-sm gap-1 hover:bg-surface-container-high hover:bg-surface-container-highest transition-colors hover:text-destructive px-3"
                         disabled={isProcessing}
                     >
                         <X className="w-3 h-3" />
